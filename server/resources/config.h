@@ -5,4 +5,6 @@
 #ifndef CONIG_H
 #define CONIG_H
 
+#define PORT 10100
+
 #endif //CONIG_H
