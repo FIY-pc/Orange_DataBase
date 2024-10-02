@@ -4,17 +4,24 @@
 
 #ifndef ORPSET_H
 #define ORPSET_H
+#include "SDS.h"
 
 // 协议版本
 #define ORP_VERSION "1.0"
 
-// 头部字节长
-#define HEAD_VERSION_LEN 4
-#define HEAD_METHOD_LEN 1
+typedef struct
+{
+    char type;
+    SDS sds;
+}SDSData;
 
-// 字符串字节流格式
-#define SDS_TYPE_LEN 1
-#define SDS_LEN_LEN 4
+typedef struct
+{
+    char version[4];
+    char method;
+    void *ORPData;
+}ByteStream;
 
+#define SDSTYPE '1'
 
 #endif //ORPSET_H

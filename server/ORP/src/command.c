@@ -1,10 +1,11 @@
 #include "command.h"
-#include "ORPSET.h"
+
+#include "SDS-ORP.h"
 
 #include <stdlib.h>
 
-unsigned char* command_to_byte(char* command)
+void* command_to_byte(SDS sds)
 {
-    
+
 }
 
