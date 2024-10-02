@@ -26,10 +26,16 @@ C语言、Linux、使用CMake进行编译
 ```c
 4byte 	1byte	后跟ORP格式数据
 协议版本 请求方法
-char[4]	 enum
+char[4]	 char
 ```
 
+请求方法：
 
+get：'1'
+
+set：'2'
+
+delete：'3'
 
 响应格式：
 
@@ -50,25 +56,22 @@ char[4]	 char[4]
 
 ##### SDS格式
 
-类型标识符：0x01
+类型标识符：'1'
 
 SDS从客户端发送来之后，将会以字符数组的形式写入数据库，取出时经过SDS的转换API重新变为SDS
 
 ```c
 1byte		4byte		n*byte	
 类型标识符	总字符长度	 字符数组
-uint8_t 	int			char[n]
+char 		int			char[n]
 ```
 
 ##### 列表格式
 
 类型标识符：0x03
 
-```c
-1byte		4byte		n*byte	
-类型标识符	总字符长度	 字符数组
-uint8_t 	int			char[n]
-```
+
+
 ------
 
 ### 通信模块

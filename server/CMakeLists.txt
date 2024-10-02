@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.28)
 set(Project_Id ODB_Server)
 project(${Project_Id})
 
+include_directories(ORP/include)
 include_directories(resources)
 add_subdirectory(data)
 add_subdirectory(ORP)
