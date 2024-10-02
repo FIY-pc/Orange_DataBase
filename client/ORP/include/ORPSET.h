@@ -5,6 +5,8 @@
 #ifndef ORPSET_H
 #define ORPSET_H
 #include "SDS.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 // 协议版本
 #define ORP_VERSION "1.0"
@@ -25,6 +27,7 @@ typedef enum {
 typedef struct
 {
     char type;
+    int32_t len;
     SDS sds;
 }SDSData;
 
