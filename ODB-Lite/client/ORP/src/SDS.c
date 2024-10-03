@@ -29,7 +29,7 @@ void sds_free(SDS *sds)
     if (sds == NULL)
         return;
     free(sds->data);
-    free(sds);
+    sds->data = NULL;
 }
 
 char *sds_get(SDS *sds)
