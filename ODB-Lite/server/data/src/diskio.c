@@ -4,14 +4,13 @@
 
 #include "diskio.h"
 
-FILE *odbopen()
+#include <stdlib.h>
+
+
+void odbLoad(HashTable *ht,char *filename)
 {
-    FILE *odb = fopen("resources/Database.odb", "r+");
-    return odb;
-}
-void odbclose(FILE *odb)
-{
-    fclose(odb);
+    hash_load_from_file(ht,filename);
+    printf("ODB Loaded\n");
 }
 
 SDS odbget(SDS key)

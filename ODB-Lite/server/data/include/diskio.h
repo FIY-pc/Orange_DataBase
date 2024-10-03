@@ -6,12 +6,14 @@
 #define DISKIO_H
 #include <stdio.h>
 #include "SDS.h"
+#include "DataSet.h"
+#include "Hash.h"
 
 
 SDS odbget(SDS key);
 SDS odbdelete(SDS key);
 SDS odbset(SDS key , SDS value);
-FILE *odbopen();
+void odbLoad(HashTable *ht,char *filename);
 void odbclose(FILE *odb);
 
 #endif //DISKIO_H
