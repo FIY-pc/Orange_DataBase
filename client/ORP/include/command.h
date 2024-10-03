@@ -13,9 +13,11 @@ struct Command
 
 SDSData sdsWrap(SDS sds);
 CommandType getCommandType(const SDS *method);
-int command_cheek(SDS *command);
-void* command_to_byte(SDS *sds);
+void* command_to_byte(const SDS *sds);
+void* serialize_RQStream(RQStream *rqstream, u_int32_t *out_len);
+void print_hex(const unsigned char *data, const u_int32_t size);
 void splitCommand(const SDS *command, SDS *method, SDS *params);
-int splitParams(const SDS params, char output[][MAX_PARAM_LEN], int maxParams);
+int command_check(const SDS *command);
+int splitParams(const SDS params, char output[][MAX_PARAM_LEN], const int maxParams);
 
 #endif //COMMAND_PARSER_H

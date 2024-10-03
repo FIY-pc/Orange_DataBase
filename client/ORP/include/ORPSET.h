@@ -5,13 +5,15 @@
 #ifndef ORPSET_H
 #define ORPSET_H
 #include "SDS.h"
-#include <stdio.h>
 #include <stdlib.h>
 
 // 协议版本
-#define ORP_VERSION "1.0"
+#define ORP_MAJOR_VERSION 1
+#define ORP_MINOR_VERSION 0
 #define MAX_PARAM_LEN 256
 #define MAX_PARAM_NUM 2
+#define HEAD_VERSION_LEN 5
+#define HEAD_STATUS_LEN 4
 // 类型标识符
 #define SDSTYPE '1'
 
@@ -31,19 +33,7 @@ typedef struct
     SDS sds;
 }SDSData;
 
-typedef struct
-{
-    char version[4];
-    char method;
-    void *ORPData;
-}RQStream;
-
-typedef struct
-{
-    char version[4];
-    char status[4];
-    void *ORPData;
-}RPStream;
+const char* ORPGetVersion();
 
 
 #endif //ORPSET_H

@@ -11,9 +11,17 @@ SDSData sdsWrap(SDS sds)
     return sdsd;
 }
 
+ByteStream SDSDataToByteStream(void *sdsByte, const u_int32_t len)
+{
+    ByteStream byteStream;
+    byteStream.len = len;
+    byteStream.data = sdsByte;
+    return byteStream;
+}
+
 // 序列化 SDSData
 
-void* serialize_SDSData(SDSData *data, int32_t *out_len) {
+void* serialize_SDSData(SDSData *data, u_int32_t *out_len) {
     size_t total_len = sizeof(char) + sizeof(int) + data->sds.len; // type, len, data
     char *buffer = (char *)malloc(total_len);
     if (!buffer) return NULL;
@@ -31,7 +39,7 @@ void* serialize_SDSData(SDSData *data, int32_t *out_len) {
     return buffer;
 }
 // 反序列化 SDSData
-SDSData* deserialize_SDSData(const void *buffer, int32_t len) {
+SDSData* deserialize_SDSData(const void *buffer, u_int32_t len) {
     const char *ptr = (const char *)buffer;
     if (len < sizeof(char) + sizeof(int32_t)) return NULL;
     SDSData *data = (SDSData *)malloc(sizeof(SDSData));
