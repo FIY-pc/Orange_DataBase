@@ -9,4 +9,6 @@
 #define PORT 10100
 #define IP "127.0.0.1"
 
+#define ODB_FILE_DIR "../resources/Database.odb"
+
 #endif //CONIG_H

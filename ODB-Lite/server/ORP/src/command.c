@@ -1,4 +1,7 @@
 #include "command.h"
+
+#include <diskio.h>
+
 #include "ORPSET.h"
 
 #include <stdlib.h>
@@ -10,30 +13,34 @@
 // 检查命令格式
 int command_check(const SDS *command)
 {
-    // printf("begin command check\n");
     SDS method,paramsline;
     SDS params[MAX_PARAM_NUM];
 
     // 初步切分方法与参数，进行参数数量过筛
     splitCommand(command,&method,&paramsline);
-    if(sds_len(&paramsline)==0)
+    printf("method is %s\n",method.data);
+    printf("paramsline is %s\n",paramsline.data);
+    const CommandType type = getCommandType(&method);
+    printf("type is %d\n",type);
+    if(strcmp(paramsline.data,"()")==0||strcmp(paramsline.data,"")==0)
     {
-        printf("invalid params\n");
-        sds_free(&paramsline);
-        sds_free(&method);
-        return -1;
+        switch(type)
+        {
+            case COMMAND_SAVE:
+                return 0;
+            default:
+                printf("command type not found(empty params command)\n");
+                return -1;
+        }
     }
 
-    // printf("params num valid\n");
     // 方法类型过筛
-    const CommandType type = getCommandType(&method);
     if(type==COMMAND_UNKNOWN)
     {
         printf("unknown method\n");
         return -1;
     }
 
-    // printf("method type:%d\n",type);
     // 方法参数量过筛
     int paramCount = splitParams(paramsline,params,MAX_PARAM_NUM);
     if(paramCount<=0)
@@ -70,12 +77,13 @@ int command_check(const SDS *command)
     }
     sds_free(&method);
     sds_free(&paramsline);
-    // printf("command check success\n");
     return 0;
 }
 
 // 返回根据从命令中切割出来的方法字符串生成的枚举值
 CommandType getCommandType(const SDS *method) {
+    printf("getCommandType: method is %s\n",method->data);
+    printf("getCommandType: methodlen is %d\n",method->len);
     if (strcasecmp(method->data, "set") == 0) {
         return COMMAND_SET;
     }
@@ -85,8 +93,7 @@ CommandType getCommandType(const SDS *method) {
     if (strcasecmp(method->data, "delete") == 0) {
         return COMMAND_DELETE;
     }
-    if (strcasecmp(method->data, "save") == 0)
-    {
+    if (strcasecmp(method->data, "save") == 0){
         return COMMAND_SAVE;
     }
     return COMMAND_UNKNOWN;
@@ -99,22 +106,19 @@ CommandType getCommandType(const SDS *method) {
      */
 void splitCommand(const SDS *command, SDS *method, SDS *params) {
     // 查找第一个'('的位置
-    // printf("begin split\n");
     const char *open_paren = strchr((*command).data, '(');
     if (open_paren == NULL) {
         *method = *command;  // 如果没有找到'(', 则整个字符串是命令
-        *params = (SDS){0, NULL};  // 参数为空
+        *params = (SDS){0, ""};  // 参数为空
         return;
     }
     // 计算命令的长度
     const int command_len = open_paren - (*command).data;
-    // printf("length:%d\n",command_len);
     // 为命令分配内存并复制
     *method = sds_new((*command).data);
     method->data[command_len] = '\0';  // 终止命令字符串
     // 为参数分配内存并复制（包括括号）
     *params = sds_new(open_paren);
-    // printf("split command success\n");
 }
 
 /*

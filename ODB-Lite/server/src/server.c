@@ -57,7 +57,7 @@ void run_server() {
     }
     hashInit(ht); // 初始化哈希表
     // 从文件加载哈希表
-    odbLoad(ht, "../resources/Database.odb");
+    odbLoad(ht, ODB_FILE_DIR);
 
     printf("Server started!\n");
 
@@ -114,7 +114,7 @@ void request_handler(HashTable *ht,int clientfd) {
                     break;
                 case COMMAND_SAVE:
                     printf("server/commandsave\n");
-                    message = odbsave(ht);
+                    message = odbsave(ht,ODB_FILE_DIR);
                 default:
             }
 

@@ -45,7 +45,13 @@ SDS odbsetSDS(HashTable *ht,SDS key , SDS value)
     return message;
 }
 
-SDS odbsave(HashTable *ht)
+SDS odbsave(HashTable *ht,const char *filename)
 {
-
+    printf("ODB Save begin\n");
+    hash_save_to_file(ht,filename);
+    char temp[256];
+    snprintf(temp, sizeof(temp), "ODB save to %s", filename);
+    printf("ODB Save end\n");
+    SDS message = sds_new(temp);
+    return message;
 }
