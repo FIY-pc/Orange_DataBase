@@ -7,6 +7,7 @@
 #include "SDS.h"
 #include "command.h"
 #include "diskio.h"
+#include "snapshot.h"
 
 void run_server();
 void request_handler(HashTable *ht,int clientfd);
@@ -115,6 +116,9 @@ void request_handler(HashTable *ht,int clientfd) {
                 case COMMAND_SAVE:
                     printf("server/commandsave\n");
                     message = odbsave(ht,ODB_FILE_DIR);
+                case COMMAND_RGSAVE:
+                    printf("server/commandrgsave\n");
+                    message = odbrgsave(ht,ODB_FILE_DIR);
                 default:
             }
 

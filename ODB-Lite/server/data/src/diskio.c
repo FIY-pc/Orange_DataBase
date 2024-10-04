@@ -5,6 +5,7 @@
 #include "diskio.h"
 
 #include <stdlib.h>
+#include <unistd.h>
 
 
 void odbLoad(HashTable *ht,char *filename)
@@ -54,4 +55,22 @@ SDS odbsave(HashTable *ht,const char *filename)
     printf("ODB Save end\n");
     SDS message = sds_new(temp);
     return message;
+}
+
+SDS odbrgsave(HashTable *ht,const char *filename)
+{
+    printf("ODB rgsave begin\n");
+    pid_t pid = fork();
+    if(pid<0)
+    {
+        perror("fork failed\n");
+        return sds_new("rgsave failed");
+    }
+    if(pid == 0)
+    {
+        hash_save_to_file(ht,filename);
+        exit(0);
+    }
+    printf("ODB rgsave end\n");
+    return sds_new("rgsave success");
 }

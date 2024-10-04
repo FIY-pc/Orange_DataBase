@@ -28,6 +28,8 @@ int command_check(const SDS *command)
         {
             case COMMAND_SAVE:
                 return 0;
+            case COMMAND_RGSAVE:
+                return 0;
             default:
                 printf("command type not found(empty params command)\n");
                 return -1;
@@ -95,6 +97,10 @@ CommandType getCommandType(const SDS *method) {
     }
     if (strncmp(method->data, "SAVE",4) == 0){
         return COMMAND_SAVE;
+    }
+    if (strncmp(method->data, "RGSAVE",6) == 0)
+    {
+        return COMMAND_RGSAVE;
     }
     return COMMAND_UNKNOWN;
 }
