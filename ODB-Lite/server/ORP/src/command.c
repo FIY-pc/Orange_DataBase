@@ -108,7 +108,7 @@ void splitCommand(const SDS *command, SDS *method, SDS *params) {
     // 查找第一个'('的位置
     const char *open_paren = strchr((*command).data, '(');
     if (open_paren == NULL) {
-        *method = *command;  // 如果没有找到'(', 则整个字符串是命令
+        *method = sds_cpy(*command);  // 复制整个命令
         *params = (SDS){0, ""};  // 参数为空
         return;
     }
@@ -117,6 +117,7 @@ void splitCommand(const SDS *command, SDS *method, SDS *params) {
     // 为命令分配内存并复制
     *method = sds_new((*command).data);
     method->data[command_len] = '\0';  // 终止命令字符串
+    method->len = command_len;  // 更新长度
     // 为参数分配内存并复制（包括括号）
     *params = sds_new(open_paren);
 }

@@ -8,19 +8,18 @@ SDS sds_new(const char *str) {
     SDS s;
     s.len = 0;
     s.data = NULL;
-    char *temp = str;
-    while (*temp!='\0')
-    {
-        s.len++;
-        temp++;
+    // 检查输入指针是否为空
+    if (str == NULL) {
+        fprintf(stderr, "Input string is NULL\n");
+        return s; // 返回一个空的SDS结构
     }
+    s.len = strlen(str);
     s.data = (char *)malloc(s.len + 1);
-    if (s.data) {
-        for (int i = 0; i < s.len; i++) {
-            s.data[i] = str[i];
-        }
-        s.data[s.len] = '\0';
+    if (s.data == NULL) {
+        fprintf(stderr, "Memory allocation failed\n");
+        return s;
     }
+    strcpy(s.data, str);
     return s;
 }
 
