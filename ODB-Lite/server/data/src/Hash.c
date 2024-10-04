@@ -67,6 +67,7 @@ void hashDelete(HashTable *ht, const char *key) {
     Entry *entry = ht->entries[index];
     Entry *prev = NULL; // 用于跟踪前一个条目，以便在需要时修改其 next 指针
 
+    // 遍历链表，查找要删除的条目
     while (entry) {
         if (strcmp(entry->key, key) == 0) {
             // 找到了要删除的条目
@@ -76,12 +77,15 @@ void hashDelete(HashTable *ht, const char *key) {
                 ht->entries[index] = entry->next; // 如果没有前一个条目，则直接修改桶的指针
             }
             free(entry); // 释放条目的内存
+            entry = NULL;
+            printf("Deleted entry with key: %s\n", key);
             return; // 完成删除后返回
         }
         prev = entry; // 在移动到下一个条目之前，更新 prev 指针
         entry = entry->next; // 移动到下一个条目
     }
-    // 如果没有找到匹配的条目，则什么也不做
+    // 如果没有找到匹配的条目，则什么也不做，但可以选择打印一条消息
+    printf("Key %s not found in hash table.\n", key);
 }
 
 void freeHashTable(HashTable *ht) {
