@@ -14,6 +14,7 @@ SDS odbget(HashTable *ht,SDS key);
 SDS odbdelete(HashTable *ht,SDS key);
 SDS odbsetSDS(HashTable *ht,SDS key , SDS value);
 void odbLoad(HashTable *ht,char *filename);
+SDS odbsave(HashTable *ht);
 void odbclose(FILE *odb);
 
 #endif //DISKIO_H

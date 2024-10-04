@@ -44,3 +44,8 @@ SDS odbsetSDS(HashTable *ht,SDS key , SDS value)
     SDS message = sds_new(rawmessage);
     return message;
 }
+
+SDS odbsave(HashTable *ht)
+{
+
+}

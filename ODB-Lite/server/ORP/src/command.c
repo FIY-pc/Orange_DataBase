@@ -42,7 +42,7 @@ int command_check(const SDS *command)
         return -1;
     }
     // printf("params num valid\n");
-    // printf("params num is %d\n",paramCount);
+    printf("params num is %d\n",paramCount);
     switch(type)
     {
         case COMMAND_GET:
@@ -84,6 +84,10 @@ CommandType getCommandType(const SDS *method) {
     }
     if (strcasecmp(method->data, "delete") == 0) {
         return COMMAND_DELETE;
+    }
+    if (strcasecmp(method->data, "save") == 0)
+    {
+        return COMMAND_SAVE;
     }
     return COMMAND_UNKNOWN;
 }

@@ -29,7 +29,7 @@ int main(){
     //收发数据
     while(1)
     {
-        char buffer[1024];
+        char buffer[1024]="";
         // 输入命令并进行检查
         fgets(buffer,1024, stdin);
         if(strcmp(buffer,"close") == 0)

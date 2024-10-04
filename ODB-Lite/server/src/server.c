@@ -17,11 +17,18 @@ int main() {
 }
 
 void run_server() {
+    char cwd[1024];
+    if (getcwd(cwd, sizeof(cwd)) != NULL)
+    {
+        printf("Current working directory: %s\n", cwd);
+    }
+
     int sockfd;
     struct sockaddr_in server;
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) {
         perror("socket fail!\n");
+        getchar();
         exit(EXIT_FAILURE);
     }
     server.sin_family = AF_INET;
@@ -31,12 +38,14 @@ void run_server() {
     if (bind(sockfd, (struct sockaddr *)&server, sizeof(server)) == -1) {
         perror("bind fail!\n");
         close(sockfd);
+        getchar();
         exit(EXIT_FAILURE);
     }
 
     if (listen(sockfd, 5) == -1) {
         perror("listen fail!\n");
         close(sockfd);
+        getchar();
         exit(EXIT_FAILURE);
     }
 
@@ -48,7 +57,7 @@ void run_server() {
     }
     hashInit(ht); // 初始化哈希表
     // 从文件加载哈希表
-    odbLoad(ht, "/home/fiy-pc/CLionProjects/Orange_DataBase/ODB-Lite/server/resources/Database.odb");
+    odbLoad(ht, "../resources/Database.odb");
 
     printf("Server started!\n");
 
@@ -89,7 +98,6 @@ void request_handler(HashTable *ht,int clientfd) {
             SDS params[MAX_PARAM_NUM];
             splitParams(paramsline,params,MAX_PARAM_NUM);
             printf("server/splitParams\n"); //
-            printSDSArray(params,MAX_PARAM_NUM); //
             switch (commandType)
             {
                 case COMMAND_GET:
@@ -104,6 +112,9 @@ void request_handler(HashTable *ht,int clientfd) {
                     printf("server/commanddelete\n");//
                     message = odbdelete(ht,params[0]);
                     break;
+                case COMMAND_SAVE:
+                    printf("server/commandsave\n");
+                    message = odbsave(ht);
                 default:
             }
 
