@@ -93,7 +93,7 @@ CommandType getCommandType(const SDS *method) {
     if (strcasecmp(method->data, "delete") == 0) {
         return COMMAND_DELETE;
     }
-    if (strcasecmp(method->data, "save") == 0){
+    if (strncmp(method->data, "SAVE",4) == 0){
         return COMMAND_SAVE;
     }
     return COMMAND_UNKNOWN;
