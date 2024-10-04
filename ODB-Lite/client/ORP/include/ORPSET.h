@@ -10,15 +10,20 @@
 // 协议版本
 #define ORP_MAJOR_VERSION 1
 #define ORP_MINOR_VERSION 0
+
+// 命令参数规定
 #define MAX_PARAM_LEN 256
 #define MAX_PARAM_NUM 2
 #define ORP_VERSION_LEN 5
 
+// 客户端规定
+#define MAX_AFFAIR_SIZE 1000
 // 命令种类
 typedef enum {
     COMMAND_SET,
     COMMAND_GET,
     COMMAND_DELETE,
+    COMMAND_SAVE,
     COMMAND_UNKNOWN
 } CommandType;
 

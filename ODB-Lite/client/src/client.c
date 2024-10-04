@@ -1,3 +1,4 @@
+#include <ORPSET.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5,7 +6,7 @@
 #include <arpa/inet.h>
 
 #include "config.h"
-#include "SDS.h"
+#include "affair.h"
 
 int main(){
     int sockfd;
@@ -29,9 +30,9 @@ int main(){
     //收发数据
     while(1)
     {
-        char buffer[1024]="";
+        char buffer[BUFSIZ]="";
         // 输入命令并进行检查
-        fgets(buffer,1024, stdin);
+        fgets(buffer,BUFSIZ, stdin);
         if(strcmp(buffer,"close") == 0)
         {
             close(sockfd);
@@ -39,7 +40,12 @@ int main(){
             getchar();
             return 0;
         }
-        // 发送命令
+        if(strcmp(buffer,"begin") == 0)
+        {
+            affair(sockfd);
+            continue;
+        }
+        // 常规发送命令，一命令一事务
         write(sockfd,buffer,strlen(buffer));
         char response[BUFSIZ];
         read(sockfd,response,BUFSIZ);
