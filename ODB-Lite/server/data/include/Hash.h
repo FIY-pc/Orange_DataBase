@@ -13,12 +13,15 @@ typedef struct Entry {
 } Entry;
 
 typedef struct HashTable {
-    Entry *entries[HASH_TABLE_SIZE];
+    Entry *entries[HASH_TABLE_INIT_SIZE];
 } HashTable;
 
+int isFileEmpty(const char *filename);
+void hashInit(HashTable *ht);
+const char *hashGet(HashTable *ht, const char *key);
 unsigned int hash_function(const char *key);
 void hashSet(HashTable *ht, const char *key, const char *value);
-const char *hashGet(HashTable *ht, const char *key);
+void hashDelete(HashTable *ht, const char *key);
 void freeHashTable(HashTable *ht);
 void hash_save_to_file(HashTable *ht, const char *filename);
 void hash_load_from_file(HashTable *ht, const char *filename);

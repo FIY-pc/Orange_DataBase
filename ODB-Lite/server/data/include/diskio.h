@@ -10,9 +10,9 @@
 #include "Hash.h"
 
 
-SDS odbget(SDS key);
-SDS odbdelete(SDS key);
-SDS odbset(SDS key , SDS value);
+SDS odbget(HashTable *ht,SDS key);
+SDS odbdelete(HashTable *ht,SDS key);
+SDS odbsetSDS(HashTable *ht,SDS key , SDS value);
 void odbLoad(HashTable *ht,char *filename);
 void odbclose(FILE *odb);
 

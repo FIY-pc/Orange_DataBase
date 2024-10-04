@@ -9,7 +9,7 @@
 #include "diskio.h"
 
 void run_server();
-void request_handler(int clientfd);
+void request_handler(HashTable *ht,int clientfd);
 
 int main() {
     run_server();
@@ -39,7 +39,18 @@ void run_server() {
         close(sockfd);
         exit(EXIT_FAILURE);
     }
-    printf("Server started\n");
+
+    HashTable *ht = malloc(sizeof(HashTable)); // 分配内存给哈希表
+    if (ht == NULL) {
+        fprintf(stderr, "Failed to allocate memory for hash table\n");
+        close(sockfd);
+        exit(EXIT_FAILURE);
+    }
+    hashInit(ht); // 初始化哈希表
+    // 从文件加载哈希表
+    odbLoad(ht, "/home/fiy-pc/CLionProjects/Orange_DataBase/ODB-Lite/server/resources/Database.odb");
+
+    printf("Server started!\n");
 
     struct sockaddr_in client;
     socklen_t len = sizeof(client);
@@ -50,12 +61,12 @@ void run_server() {
             continue;
         }
         printf("Client connected\n");
-        request_handler(clientfd);
+        request_handler(ht,clientfd);
         close(clientfd);  // 关闭客户端连接
     }
 }
 
-void request_handler(int clientfd) {
+void request_handler(HashTable *ht,int clientfd) {
     char request[1024];
     int bytes_received;
     SDS command;
@@ -72,26 +83,31 @@ void request_handler(int clientfd) {
 
             SDS method,paramsline;
             splitCommand(&command,&method,&paramsline);
+            printf("server/splitCommand\n");//
             CommandType commandType = getCommandType(&method);
-
+            printf("server/getCommandType\n");//
             SDS params[MAX_PARAM_NUM];
             splitParams(paramsline,params,MAX_PARAM_NUM);
-            printSDSArray(params,MAX_PARAM_NUM);
+            printf("server/splitParams\n"); //
+            printSDSArray(params,MAX_PARAM_NUM); //
             switch (commandType)
             {
                 case COMMAND_GET:
-                    message = odbget(params[0]);
+                    printf("server/commandget\n");//
+                    message = odbget(ht,params[0]);
                     break;
                 case COMMAND_SET:
-                    message = odbset(params[0],params[1]);
+                    printf("server/commandset\n");//
+                    message = odbsetSDS(ht,params[0],params[1]);
                     break;
                 case COMMAND_DELETE:
-                    message = odbdelete(params[0]);
+                    printf("server/commanddelete\n");//
+                    message = odbdelete(ht,params[0]);
                     break;
                 default:
             }
 
-            sprintf(response, "OK%s",message.data);
+            sprintf(response, "OK\n%s",message.data);
             write(clientfd,response,strlen(response)+1);
         }
     }
