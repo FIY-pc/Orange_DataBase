@@ -3,14 +3,26 @@
 //
 
 #include "diskio.h"
+#include "autoSaver.h"
 
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 
 void odbLoad(HashTable *ht,char *filename)
 {
     hash_load_from_file(ht,filename);
+    SDS autoSaveTime = odbget(ht,sds_new(ODB_SETTING_AUTOSAVE_TIME));
+    if(strncpy(autoSaveTime.data,"rawData not found",strlen("rawData not found"))==0)
+    {
+        odbsetSDS(ht,sds_new(ODB_SETTING_AUTOSAVE_TIME),sds_new("0"));
+    }
+    SDS autoSaveChangeNum = odbget(ht,sds_new(ODB_SETTING_AUTOSAVE_CHANGENUM));
+    if(strncpy(autoSaveChangeNum.data,"rawData not found",strlen("rawData not found"))==0)
+    {
+        odbsetSDS(ht,sds_new(ODB_SETTING_AUTOSAVE_CHANGENUM),sds_new("0"));
+    }
     printf("ODB Loaded\n");
 }
 
@@ -73,4 +85,14 @@ SDS odbrgsave(HashTable *ht,const char *filename)
     }
     printf("ODB rgsave end\n");
     return sds_new("rgsave success");
+}
+
+SDS odbautosave(HashTable *ht,SDS time,SDS changeNum)
+{
+    if(strcmp(time.data,"0")==0||strcmp(changeNum.data,"0")==0)
+    {
+        printf("ODB autosave close\n");
+        return sds_new("ODB autosave close");
+    }
+
 }

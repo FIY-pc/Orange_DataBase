@@ -119,6 +119,9 @@ void request_handler(HashTable *ht,int clientfd) {
                 case COMMAND_RGSAVE:
                     printf("server/commandrgsave\n");
                     message = odbrgsave(ht,ODB_FILE_DIR);
+                case COMMAND_AUTOSAVE:
+                    printf("server/commandautosave\n");
+                    message = odbautosave(ht,params[0],params[1]);
                 default:
             }
 

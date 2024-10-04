@@ -26,6 +26,7 @@ typedef enum {
     COMMAND_DELETE,
     COMMAND_SAVE,
     COMMAND_RGSAVE,
+    COMMAND_AUTOSAVE,
     COMMAND_UNKNOWN
 } CommandType;
 

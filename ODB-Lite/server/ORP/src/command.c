@@ -22,6 +22,7 @@ int command_check(const SDS *command)
     printf("paramsline is %s\n",paramsline.data);
     const CommandType type = getCommandType(&method);
     printf("type is %d\n",type);
+    // 若是检测到无参数命令，进行进一步检查
     if(strcmp(paramsline.data,"()")==0||strcmp(paramsline.data,"")==0)
     {
         switch(type)
@@ -75,6 +76,12 @@ int command_check(const SDS *command)
                 return -1;
             }
             break;
+        case COMMAND_AUTOSAVE:
+            if(paramCount!=2)
+            {
+                printf("invalid params num\n");
+                return -1;
+            }
         default:
     }
     sds_free(&method);
@@ -101,6 +108,10 @@ CommandType getCommandType(const SDS *method) {
     if (strncmp(method->data, "RGSAVE",6) == 0)
     {
         return COMMAND_RGSAVE;
+    }
+    if(strncmp(method->data,"save",4) == 0)
+    {
+        return COMMAND_AUTOSAVE;
     }
     return COMMAND_UNKNOWN;
 }
