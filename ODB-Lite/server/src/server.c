@@ -138,6 +138,18 @@ void request_handler(HashTable *ht,int clientfd) {
                 printf("server/commandlindex\n");
                 message = odblindex(ht, params[0], params[1]);
                 break;
+            case COMMAND_HSET:
+                printf("server/commandhset\n");
+                message = odbhset(ht,params[0],params[1],params[2]);
+                break;
+            case COMMAND_HGET:
+                printf("server/commandhget\n");
+                message = odbhget(ht,params[0],params[1]);
+                break;
+            case COMMAND_HDEL:
+                printf("server/commandhdel\n");
+                message = odbhdel(ht,params[0],params[1]);
+                break;
             default:
 
             }

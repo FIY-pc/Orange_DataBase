@@ -44,7 +44,8 @@ void sds_set(SDS *sds, const char *data) {
         return;
     }
     sds->data = newData;
-    strcpy(sds->data, data);
+    memcpy(sds->data, data, newDataLen);
+    sds->data[newDataLen] = '\0';
     sds->len = newDataLen;
 }
 

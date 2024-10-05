@@ -22,6 +22,9 @@ typedef enum {
     COMMAND_ADDR,
     COMMAND_ADDL,
     COMMAND_LINDEX,
+    COMMAND_HSET,
+    COMMAND_HGET,
+    COMMAND_HDEL,
     COMMAND_UNKNOWN
 } CommandType;
 

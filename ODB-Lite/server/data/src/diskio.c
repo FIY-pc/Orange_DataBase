@@ -6,6 +6,7 @@
 
 #include "autoSaver.h"
 #include "list.h"
+#include "valueHash.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -145,7 +146,7 @@ SDS odbautosave(HashTable *ht,const char *filename,SDS time,SDS changeNum)
     hashSet(ht,ODB_SETTING_AUTOSAVE_TIME,time.data);
     hashSet(ht,ODB_SETTING_AUTOSAVE_CHANGENUM,changeNum.data);
     printf("ODB autosave setting saved\n");
-
+    // message生成
     char rawmessage[256];
     snprintf(rawmessage, sizeof(rawmessage), "ODB autosave OPEN!\nSave when %s changes\nEvery %s seconds run a check",changeNum.data,time.data);
     return sds_new(rawmessage);
@@ -165,7 +166,7 @@ SDS odbaddr(HashTable *ht,SDS key , SDS value)
     addToTail(&ListHead,createDLinkListNode(value.data));
     SDS resultFormat = list_to_SDS(ListHead);
     hashSet(ht,key.data,resultFormat.data);
-
+    // message生成
     char rawmessage[256];
     snprintf(rawmessage, sizeof(rawmessage), "list change from %s to %s",formatList.data,resultFormat.data);
     sds_set(&message,rawmessage);
@@ -190,7 +191,7 @@ SDS odbaddl(HashTable *ht,SDS key , SDS value)
     addToHead(&ListHead,createDLinkListNode(value.data));
     SDS resultFormat = list_to_SDS(ListHead);
     hashSet(ht,key.data,resultFormat.data);
-
+    // message生成
     char rawmessage[256];
     snprintf(rawmessage, sizeof(rawmessage), "list change from %s to %s",formatList.data,resultFormat.data);
     sds_set(&message,rawmessage);
@@ -221,6 +222,81 @@ SDS odblindex(HashTable *ht,SDS key,SDS index)
     }
     SDS result = getNodeSDSByIndex(ListHead,indexNum);
     return result;
+}
+
+SDS odbhset(HashTable *ht,SDS key,SDS field,SDS value)
+{
+    SDS message = sds_new("");
+    SDS formatHash = sds_new(hashGet(ht,key.data));
+    valueHash *value_hash = SDS_to_valueHash(formatHash);
+    if(value_hash == NULL)
+    {
+        sds_set(&message,"invalid hash");
+        return message;
+    }
+    // 保存操作
+    valueHashSet(value_hash,field.data,value.data);
+    SDS resultFormat = valueHash_to_SDS(value_hash);
+    hashSet(ht,key.data,resultFormat.data);
+    // message生成
+    char rawmessage[256];
+    sprintf(rawmessage,"valueHash set %s:%s",field.data,valueHashGet(value_hash,field.data));
+    sds_set(&message,rawmessage);
+    printf("ODB hset success\n");
+
+    // autoSaver
+    increment_change_count();
+    return message;
+}
+SDS odbhget(HashTable *ht,SDS key,SDS field)
+{
+    SDS message = sds_new("");
+    SDS formatHash = sds_new(hashGet(ht,key.data));
+    valueHash *value_hash = SDS_to_valueHash(formatHash);
+    if(value_hash == NULL)
+    {
+        sds_set(&message,"invalid hash");
+        return message;
+    }
+    // 提取操作
+    const char *rawdata = valueHashGet(value_hash,field.data);
+    if(rawdata == NULL)
+    {
+        sds_set(&message,"invalid field");
+        return message;
+    }
+    // message生成
+    sds_set(&message,rawdata);
+    return message;
+}
+SDS odbhdel(HashTable *ht,SDS key,SDS field)
+{
+    SDS message = sds_new("");
+    SDS formatHash = sds_new(hashGet(ht,key.data));
+    valueHash *value_hash = SDS_to_valueHash(formatHash);
+    if(value_hash == NULL)
+    {
+        sds_set(&message,"invalid hash");
+        return message;
+    }
+
+    const char *rawdata = valueHashGet(value_hash,field.data);
+    if(rawdata == NULL)
+    {
+        sds_set(&message,"field-value is null");
+        return message;
+    }
+    // 删除操作
+    valueHashDelete(value_hash,field.data);
+    SDS resultFormat = valueHash_to_SDS(value_hash);
+    hashSet(ht,key.data,resultFormat.data);
+    // message生成
+    char rawmessage[256];
+    sprintf(rawmessage,"delete %s:%s",field.data,rawdata);
+    sds_set(&message,rawmessage);
+    // autoSaver
+    increment_change_count();
+    return message;
 }
 
 int isValidNaturalInteger(const char *str) {

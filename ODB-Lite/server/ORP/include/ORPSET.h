@@ -13,7 +13,7 @@
 
 // 命令参数规定
 #define MAX_PARAM_LEN 256
-#define MAX_PARAM_NUM 2
+#define MAX_PARAM_NUM 4
 #define ORP_VERSION_LEN 5
 
 // 客户端规定
