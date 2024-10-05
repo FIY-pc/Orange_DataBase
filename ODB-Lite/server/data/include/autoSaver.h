@@ -5,7 +5,7 @@
 #ifndef AUTOSAVER_H
 #define AUTOSAVER_H
 #include "SDS.h"
-#include "diskio.h"
+#include "Realizer.h"
 
 // 用外部变量记录变化数
 extern int change_count;

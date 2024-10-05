@@ -70,17 +70,17 @@ void sds_print(SDS *sds)
     printf("%s\n", sds->data);
 }
 
-int sds_cmp(const SDS s1, const SDS s2)
+int sds_cmp(const SDS sds1, const SDS sds2)
 {
-    if(s1.len != s2.len)
+    if(sds1.len != sds2.len)
     {
-        return s1.len>s2.len ? 1 : -1;
+        return sds1.len>sds2.len ? 1 : -1;
     }
-    int minlen = (s1.len < s2.len) ? s1.len : s2.len;
+    int minlen = (sds1.len < sds2.len) ? sds1.len : sds2.len;
     for (int i = 0; i < minlen; i++)
     {
-        if(s1.data[i] != s2.data[i])
-            return s1.data[i]>s2.data[i] ? 1 : -1;
+        if(sds1.data[i] != sds2.data[i])
+            return sds1.data[i]>sds2.data[i] ? 1 : -1;
     }
     return 0;
 }

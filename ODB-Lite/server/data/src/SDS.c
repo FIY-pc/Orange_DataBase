@@ -5,19 +5,19 @@
 #include <string.h>
 
 SDS sds_new(const char *str) {
-    SDS s = {0, NULL};
+    SDS sds = {0, NULL};
     if (str == NULL) {
         fprintf(stderr, "Input string is NULL\n");
-        return s;
+        return sds;
     }
-    s.len = strlen(str);
-    s.data = (char *)calloc(s.len + 1, sizeof(char));
-    if (s.data == NULL) {
+    sds.len = strlen(str);
+    sds.data = (char *)calloc(sds.len + 1, sizeof(char));
+    if (sds.data == NULL) {
         fprintf(stderr, "Memory allocation failed\n");
-        return s;
+        return sds;
     }
-    strcpy(s.data, str);
-    return s;
+    strcpy(sds.data, str);
+    return sds;
 }
 
 void sds_free(SDS *sds)
@@ -68,17 +68,17 @@ void sds_print(SDS *sds)
     printf("%s\n", sds->data);
 }
 
-int sds_cmp(const SDS s1, const SDS s2)
+int sds_cmp(const SDS sds1, const SDS sds2)
 {
-    if(s1.len != s2.len)
+    if(sds1.len != sds2.len)
     {
-        return s1.len>s2.len ? 1 : -1;
+        return sds1.len>sds2.len ? 1 : -1;
     }
-    int minlen = (s1.len < s2.len) ? s1.len : s2.len;
+    int minlen = (sds1.len < sds2.len) ? sds1.len : sds2.len;
     for (int i = 0; i < minlen; i++)
     {
-        if(s1.data[i] != s2.data[i])
-            return s1.data[i]>s2.data[i] ? 1 : -1;
+        if(sds1.data[i] != sds2.data[i])
+            return sds1.data[i]>sds2.data[i] ? 1 : -1;
     }
     return 0;
 }
