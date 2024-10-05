@@ -16,15 +16,20 @@ void increment_change_count();
 void reset_change_count();
 int get_change_count();
 
-// 变化监视器线程相关函数与定义
+// 操作变化监视器线程开关的函数
+void open_autoSaver();
+void close_autoSaver();
+
+// 参数包
 typedef struct
 {
     HashTable *ht;
     SDS time;
     SDS changeNum;
-    char fileName[128];
+    char fileName[256];
 }autoSaverArgs;
 
+// 变化监视器线程相关函数
 SDS autoSaver_create(HashTable *ht, const char *filename,SDS time,SDS changeNum);
 void *autoSaver(void *arg);
 #endif //AUTOSAVER_H

@@ -28,8 +28,11 @@ void sds_free(SDS *sds)
 {
     if (sds == NULL)
         return;
-    free(sds->data);
-    sds->data = NULL;
+    if (sds->data)
+    {
+        free(sds->data);
+        sds->data = NULL;
+    }
 }
 
 char *sds_get(const SDS *sds)

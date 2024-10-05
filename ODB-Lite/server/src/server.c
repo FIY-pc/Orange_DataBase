@@ -7,7 +7,6 @@
 #include "SDS.h"
 #include "command.h"
 #include "diskio.h"
-#include "snapshot.h"
 
 void run_server();
 void request_handler(HashTable *ht,int clientfd);
@@ -59,6 +58,8 @@ void run_server() {
     hashInit(ht); // 初始化哈希表
     // 从文件加载哈希表
     odbLoad(ht, ODB_FILE_DIR);
+    // autoSaver
+    odbautosave(ht,ODB_FILE_DIR,odbget(ht,sds_new(ODB_SETTING_AUTOSAVE_TIME)),odbget(ht,sds_new(ODB_SETTING_AUTOSAVE_CHANGENUM)));
 
     printf("Server started!\n");
 
@@ -116,12 +117,15 @@ void request_handler(HashTable *ht,int clientfd) {
                 case COMMAND_SAVE:
                     printf("server/commandsave\n");
                     message = odbsave(ht,ODB_FILE_DIR);
+                    break;
                 case COMMAND_RGSAVE:
                     printf("server/commandrgsave\n");
                     message = odbrgsave(ht,ODB_FILE_DIR);
+                    break;
                 case COMMAND_AUTOSAVE:
                     printf("server/commandautosave\n");
-                    message = odbautosave(ht,params[0],params[1]);
+                    message = odbautosave(ht,ODB_FILE_DIR,params[0],params[1]);
+                    break;
                 default:
             }
 

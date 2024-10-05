@@ -9,13 +9,15 @@
 #include "DataSet.h"
 #include "Hash.h"
 
+// ODB操作API
 SDS odbget(HashTable *ht,SDS key);
 SDS odbdelete(HashTable *ht,SDS key);
 SDS odbsetSDS(HashTable *ht,SDS key , SDS value);
 SDS odbsave(HashTable *ht,const char *filename);
 SDS odbrgsave(HashTable *ht,const char *filename);
-SDS odbautosave(HashTable *ht,SDS time,SDS changeNum);
+SDS odbautosave(HashTable *ht,const char *filename,SDS time,SDS changeNum);
 void odbLoad(HashTable *ht,char *filename);
-void odbclose(FILE *odb);
 
+// 辅助函数
+int isValidPositiveInteger(const char *str);
 #endif //DISKIO_H
