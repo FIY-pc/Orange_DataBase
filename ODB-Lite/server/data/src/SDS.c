@@ -5,16 +5,13 @@
 #include <string.h>
 
 SDS sds_new(const char *str) {
-    SDS s;
-    s.len = 0;
-    s.data = NULL;
-    // 检查输入指针是否为空
+    SDS s = {0, NULL};
     if (str == NULL) {
         fprintf(stderr, "Input string is NULL\n");
-        return s; // 返回一个空的SDS结构
+        return s;
     }
     s.len = strlen(str);
-    s.data = (char *)malloc(s.len + 1);
+    s.data = (char *)calloc(s.len + 1, sizeof(char));
     if (s.data == NULL) {
         fprintf(stderr, "Memory allocation failed\n");
         return s;
@@ -38,34 +35,17 @@ char *sds_get(const SDS *sds)
     return sds->data;
 }
 
-void sds_set(SDS *sds, char *data){
-    if (sds == NULL)
-        return;
-    // 计算新字符串的长度
-    int newDataLen = 0;
-    char *temp = data;
-    while (*temp != '\0')
-    {
-        newDataLen++;
-        temp++;
-    }
-    // 重新分配内存
-    char *newData = (char *)realloc(sds->data, (newDataLen + 1) * sizeof(char));
-    if (newData == NULL)
-    {
-        printf("sds_set: realloc failed\n");
+void sds_set(SDS *sds, const char *data) {
+    if (sds == NULL || data == NULL) return;
+    int newDataLen = strlen(data);
+    char *newData = (char *)realloc(sds->data, newDataLen + 1);
+    if (newData == NULL) {
+        fprintf(stderr, "Reallocation failed\n");
         return;
     }
-    // 复制字符串
     sds->data = newData;
-    temp = data;
-    for (int i = 0; i < newDataLen; i++)
-    {
-        sds->data[i] = *temp;
-        temp++;
-    }
+    strcpy(sds->data, data);
     sds->len = newDataLen;
-    sds->data[newDataLen] = '\0';
 }
 
 int sds_len(SDS *sds)

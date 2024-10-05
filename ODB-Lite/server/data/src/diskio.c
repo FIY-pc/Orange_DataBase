@@ -128,10 +128,9 @@ SDS odbautosave(HashTable *ht,const char *filename,SDS time,SDS changeNum)
         printf("ODB autosave REOPEN\n");
 
         // 保存配置信息
-        hashSet(ht, ODB_SETTING_AUTOSAVE_TIME,time.data);
-        hashSet(ht, ODB_SETTING_AUTOSAVE_CHANGENUM,changeNum.data);
-        hash_save_to_file(ht,filename);
-        printf("New auto-save settings are saved\n");
+        hashSet(ht,ODB_SETTING_AUTOSAVE_TIME,time.data);
+        hashSet(ht,ODB_SETTING_AUTOSAVE_CHANGENUM,changeNum.data);
+        printf("ODB autosave setting saved\n");
 
         char rawmessage[256];
         snprintf(rawmessage, sizeof(rawmessage), "ODB autosave REOPEN!\nSave when %s changes\nEvery %s seconds run a check",changeNum.data,time.data);
@@ -140,11 +139,11 @@ SDS odbautosave(HashTable *ht,const char *filename,SDS time,SDS changeNum)
     open_autoSaver();
     autoSaver_create(ht,filename,time,changeNum);
     printf("ODB autosave OPEN\n");
+
     // 保存配置信息
-    hashSet(ht, ODB_SETTING_AUTOSAVE_TIME,time.data);
-    hashSet(ht, ODB_SETTING_AUTOSAVE_CHANGENUM,changeNum.data);
-    hash_save_to_file(ht,filename);
-    printf("New auto-save settings are saved\n");
+    hashSet(ht,ODB_SETTING_AUTOSAVE_TIME,time.data);
+    hashSet(ht,ODB_SETTING_AUTOSAVE_CHANGENUM,changeNum.data);
+    printf("ODB autosave setting saved\n");
 
     char rawmessage[256];
     snprintf(rawmessage, sizeof(rawmessage), "ODB autosave OPEN!\nSave when %s changes\nEvery %s seconds run a check",changeNum.data,time.data);

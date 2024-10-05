@@ -15,7 +15,7 @@ typedef struct
 SDS sds_new(const char *str);
 SDS sds_cpy(const SDS s);
 void sds_free(SDS *sds);
-void sds_set(SDS *sds, char *data);
+void sds_set(SDS *sds, const char *data) ;
 void sds_print(SDS *sds);
 void printSDSArray(SDS *arr, int size);
 void freeSDSArray(SDS *arr, int size);
