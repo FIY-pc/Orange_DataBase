@@ -21,6 +21,7 @@ typedef enum {
     COMMAND_AUTOSAVE,
     COMMAND_ADDR,
     COMMAND_ADDL,
+    COMMAND_LINDEX,
     COMMAND_UNKNOWN
 } CommandType;
 

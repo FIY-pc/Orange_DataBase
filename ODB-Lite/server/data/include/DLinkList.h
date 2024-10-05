@@ -20,4 +20,6 @@ void deleteNode(DLinkListNode** head, DLinkListNode* delNode);
 void destroyList(DLinkListNode** head);
 void printList(DLinkListNode* head);
 DLinkListNode* findNode(DLinkListNode* head, const char* str);
+SDS getNodeSDSByIndex(DLinkListNode* head, int index);
+
 #endif //DLINKLIST_H

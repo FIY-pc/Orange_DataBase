@@ -109,7 +109,7 @@ SDS odbrgsave(HashTable *ht,const char *filename)
 
 SDS odbautosave(HashTable *ht,const char *filename,SDS time,SDS changeNum)
 {
-    if(isValidPositiveInteger(time.data)==0 || isValidPositiveInteger(changeNum.data)==0)
+    if(isValidNaturalInteger(time.data)==0 || isValidNaturalInteger(changeNum.data)==0)
     {
         printf("ODB autosave failed due to illegal param\n");
         return sds_new("illegal param");
@@ -201,12 +201,34 @@ SDS odbaddl(HashTable *ht,SDS key , SDS value)
     return message;
 }
 
-int isValidPositiveInteger(const char *str) {
+SDS odblindex(HashTable *ht,SDS key,SDS index)
+{
+    SDS message = sds_new("");
+
+    if(isValidNaturalInteger(index.data)==0)
+    {
+        sds_set(&message,"invalid index");
+        return message;
+    }
+    int indexNum;
+    sscanf(index.data,"%d",&indexNum);
+    SDS formatList = sds_new(hashGet(ht,key.data));
+    DLinkListNode *ListHead = SDS_to_list(formatList);
+    if(ListHead == NULL)
+    {
+        sds_set(&message,"invalid list");
+        return message;
+    }
+    SDS result = getNodeSDSByIndex(ListHead,indexNum);
+    return result;
+}
+
+int isValidNaturalInteger(const char *str) {
     if (str == NULL || *str == '\0') {
         return 0;
     }
     if (*str == '0' && *(str + 1) != '\0') {
-        return 0;
+        return 1;
     }
     while (*str) {
         if (!isdigit(*str)) {

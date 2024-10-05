@@ -134,6 +134,10 @@ void request_handler(HashTable *ht,int clientfd) {
                 printf("server/commandaddl\n");
                 message = odbaddl(ht, params[0], params[1]);
                 break;
+            case COMMAND_LINDEX:
+                printf("server/commandlindex\n");
+                message = odblindex(ht, params[0], params[1]);
+                break;
             default:
 
             }

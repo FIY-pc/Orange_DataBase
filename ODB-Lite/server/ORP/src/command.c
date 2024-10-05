@@ -97,6 +97,13 @@ int command_check(const SDS *command)
             return -1;
         }
         break;
+    case COMMAND_LINDEX:
+        if (paramCount != 2)
+        {
+            printf("invalid params num\n");
+            return -1;
+        }
+        break;
     default:
     }
     sds_free(&method);
@@ -135,6 +142,10 @@ CommandType getCommandType(const SDS *method) {
     if(strncmp(method->data,"addl",4) == 0)
     {
         return COMMAND_ADDL;
+    }
+    if(strncmp(method->data,"lindex",6) == 0)
+    {
+        return COMMAND_LINDEX;
     }
     return COMMAND_UNKNOWN;
 }

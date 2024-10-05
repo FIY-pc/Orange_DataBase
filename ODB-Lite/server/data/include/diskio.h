@@ -18,9 +18,10 @@ SDS odbaddl(HashTable *ht,SDS key , SDS value);
 SDS odbsave(HashTable *ht,const char *filename);
 SDS odbrgsave(HashTable *ht,const char *filename);
 SDS odbautosave(HashTable *ht,const char *filename,SDS time,SDS changeNum);
+SDS odblindex(HashTable *ht,SDS key,SDS index);
 
 void odbLoad(HashTable *ht,char *filename);
 
 // 辅助函数
-int isValidPositiveInteger(const char *str);
+int isValidNaturalInteger(const char *str);
 #endif //DISKIO_H

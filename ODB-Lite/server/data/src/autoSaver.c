@@ -74,7 +74,7 @@ void *autoSaver(void *arg) {
 }
 
 SDS autoSaver_create(HashTable *ht, const char *filename, SDS time, SDS changeNum) {
-    if (isValidPositiveInteger(time.data) == 0 || isValidPositiveInteger(changeNum.data) == 0) {
+    if (isValidNaturalInteger(time.data) == 0 || isValidNaturalInteger(changeNum.data) == 0) {
         printf("autoSaver create failed due to illegal param\n");
         return sds_new("autoSaver create failed due to illegal param");
     }

@@ -8,8 +8,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-// 假设你已经定义了SDS结构体和DLinkListNode结构体
-
 // 创建一个新的DLinkListNode
 DLinkListNode* createDLinkListNode(const char* str) {
     DLinkListNode* newNode = (DLinkListNode*)malloc(sizeof(DLinkListNode));
@@ -82,6 +80,21 @@ DLinkListNode* findNode(DLinkListNode* head, const char* str) {
         temp = temp->next;
     }
     return NULL;
+}
+
+// 按索引进行查找
+SDS getNodeSDSByIndex(DLinkListNode* head, int index) {
+    DLinkListNode* temp = head;
+    int currentIndex = 0;
+    while (temp != NULL) {
+        if (currentIndex == index) {
+            return temp->data;
+        }
+        currentIndex++;
+        temp = temp->next;
+    }
+    // 如果索引超出链表长度，返回NULL
+    return sds_new("");
 }
 
 // 打印链表中的所有节点
