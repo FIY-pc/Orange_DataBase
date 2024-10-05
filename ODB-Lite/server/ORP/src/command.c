@@ -53,43 +53,58 @@ int command_check(const SDS *command)
     }
     // printf("params num valid\n");
     printf("params num is %d\n",paramCount);
-    switch(type)
+    switch (type)
     {
-        case COMMAND_GET:
-            if(paramCount!=1)
-            {
-                printf("invalid params num\n");
-                return -1;
-            }
-            break;
-        case COMMAND_SET:
-            if(paramCount!=2)
-            {
-                printf("invalid params num\n");
-                return -1;
-            }
-            break;
-        case COMMAND_DELETE:
-            if(paramCount!=1)
-            {
-                printf("invalid params num\n");
-                return -1;
-            }
-            break;
-        case COMMAND_AUTOSAVE:
-            if(paramCount!=2)
-            {
-                printf("invalid params num\n");
-                return -1;
-            }
-        default:
+    case COMMAND_GET:
+        if (paramCount != 1)
+        {
+            printf("invalid params num\n");
+            return -1;
+        }
+        break;
+    case COMMAND_SET:
+        if (paramCount != 2)
+        {
+            printf("invalid params num\n");
+            return -1;
+        }
+        break;
+    case COMMAND_DELETE:
+        if (paramCount != 1)
+        {
+            printf("invalid params num\n");
+            return -1;
+        }
+        break;
+    case COMMAND_AUTOSAVE:
+        if (paramCount != 2)
+        {
+            printf("invalid params num\n");
+            return -1;
+        }
+        break;
+    case COMMAND_ADDR:
+        if (paramCount != 2)
+        {
+            printf("invalid params num\n");
+            return -1;
+        }
+        break;
+    case COMMAND_ADDL:
+        if (paramCount != 2)
+        {
+            printf("invalid params num\n");
+            return -1;
+        }
+        break;
+    default:
     }
     sds_free(&method);
     sds_free(&paramsline);
     return 0;
 }
 
-// 返回根据从命令中切割出来的方法字符串生成的枚举值
+// 返回方法字符串对应的枚举值
 CommandType getCommandType(const SDS *method) {
     printf("getCommandType: method is %s\n",method->data);
     printf("getCommandType: methodlen is %d\n",method->len);
@@ -112,6 +127,14 @@ CommandType getCommandType(const SDS *method) {
     if(strncmp(method->data,"save",4) == 0)
     {
         return COMMAND_AUTOSAVE;
+    }
+    if(strncmp(method->data,"addr",4) == 0)
+    {
+        return COMMAND_ADDR;
+    }
+    if(strncmp(method->data,"addl",4) == 0)
+    {
+        return COMMAND_ADDL;
     }
     return COMMAND_UNKNOWN;
 }

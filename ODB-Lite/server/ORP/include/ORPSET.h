@@ -19,17 +19,6 @@
 // 客户端规定
 #define MAX_AFFAIR_SIZE 1000
 
-// 命令种类
-typedef enum {
-    COMMAND_SET,
-    COMMAND_GET,
-    COMMAND_DELETE,
-    COMMAND_SAVE,
-    COMMAND_RGSAVE,
-    COMMAND_AUTOSAVE,
-    COMMAND_UNKNOWN
-} CommandType;
-
 // 数据包格式
 typedef struct
 {

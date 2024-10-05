@@ -102,31 +102,40 @@ void request_handler(HashTable *ht,int clientfd) {
             printf("server/splitParams\n"); //
             switch (commandType)
             {
-                case COMMAND_GET:
-                    printf("server/commandget\n");//
-                    message = odbget(ht,params[0]);
-                    break;
-                case COMMAND_SET:
-                    printf("server/commandset\n");//
-                    message = odbsetSDS(ht,params[0],params[1]);
-                    break;
-                case COMMAND_DELETE:
-                    printf("server/commanddelete\n");//
-                    message = odbdelete(ht,params[0]);
-                    break;
-                case COMMAND_SAVE:
-                    printf("server/commandsave\n");
-                    message = odbsave(ht,ODB_FILE_DIR);
-                    break;
-                case COMMAND_RGSAVE:
-                    printf("server/commandrgsave\n");
-                    message = odbrgsave(ht,ODB_FILE_DIR);
-                    break;
-                case COMMAND_AUTOSAVE:
-                    printf("server/commandautosave\n");
-                    message = odbautosave(ht,ODB_FILE_DIR,params[0],params[1]);
-                    break;
-                default:
+            case COMMAND_GET:
+                printf("server/commandget\n"); //
+                message = odbget(ht, params[0]);
+                break;
+            case COMMAND_SET:
+                printf("server/commandset\n"); //
+                message = odbsetSDS(ht, params[0], params[1]);
+                break;
+            case COMMAND_DELETE:
+                printf("server/commanddelete\n"); //
+                message = odbdelete(ht, params[0]);
+                break;
+            case COMMAND_SAVE:
+                printf("server/commandsave\n");
+                message = odbsave(ht,ODB_FILE_DIR);
+                break;
+            case COMMAND_RGSAVE:
+                printf("server/commandrgsave\n");
+                message = odbrgsave(ht,ODB_FILE_DIR);
+                break;
+            case COMMAND_AUTOSAVE:
+                printf("server/commandautosave\n");
+                message = odbautosave(ht,ODB_FILE_DIR, params[0], params[1]);
+                break;
+            case COMMAND_ADDR:
+                printf("server/commandaddr\n");
+                message = odbaddr(ht, params[0], params[1]);
+                break;
+            case COMMAND_ADDL:
+                printf("server/commandaddl\n");
+                message = odbaddl(ht, params[0], params[1]);
+                break;
+            default:
+
             }
 
             sprintf(response, "OK\n%s",message.data);

@@ -11,6 +11,19 @@ struct Command
     void *params;
 };
 
+// 命令种类
+typedef enum {
+    COMMAND_SET,
+    COMMAND_GET,
+    COMMAND_DELETE,
+    COMMAND_SAVE,
+    COMMAND_RGSAVE,
+    COMMAND_AUTOSAVE,
+    COMMAND_ADDR,
+    COMMAND_ADDL,
+    COMMAND_UNKNOWN
+} CommandType;
+
 CommandType getCommandType(const SDS *method);
 void splitCommand(const SDS *command, SDS *method, SDS *params);
 int command_check(const SDS *command);

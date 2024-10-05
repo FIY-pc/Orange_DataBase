@@ -1,13 +1,14 @@
 //
 // Created by fiy-pc on 2024/10/2.
 //
-
+#include "DataSet.h"
 #include "diskio.h"
 
-#include <ctype.h>
-
 #include "autoSaver.h"
+#include "list.h"
 
+#include <ctype.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -122,7 +123,7 @@ SDS odbautosave(HashTable *ht,const char *filename,SDS time,SDS changeNum)
     if(autoSaverSwitch==1)
     {
         close_autoSaver();
-        usleep(5000);
+        usleep(2000);
         open_autoSaver();
         autoSaver_create(ht,filename,time,changeNum);
         printf("ODB autosave REOPEN\n");
@@ -148,6 +149,56 @@ SDS odbautosave(HashTable *ht,const char *filename,SDS time,SDS changeNum)
     char rawmessage[256];
     snprintf(rawmessage, sizeof(rawmessage), "ODB autosave OPEN!\nSave when %s changes\nEvery %s seconds run a check",changeNum.data,time.data);
     return sds_new(rawmessage);
+}
+
+SDS odbaddr(HashTable *ht,SDS key , SDS value)
+{
+    SDS message = sds_new("");
+
+    SDS formatList = sds_new(hashGet(ht,key.data));
+    DLinkListNode *ListHead = SDS_to_list(formatList);
+    if(ListHead == NULL)
+    {
+        sds_set(&message,"invalid list");
+        return message;
+    }
+    addToTail(&ListHead,createDLinkListNode(value.data));
+    SDS resultFormat = list_to_SDS(ListHead);
+    hashSet(ht,key.data,resultFormat.data);
+
+    char rawmessage[256];
+    snprintf(rawmessage, sizeof(rawmessage), "list change from %s to %s",formatList.data,resultFormat.data);
+    sds_set(&message,rawmessage);
+    printf("ODB addr success\n");
+
+    // autoSaver
+    increment_change_count();
+    return message;
+}
+
+SDS odbaddl(HashTable *ht,SDS key , SDS value)
+{
+    SDS message = sds_new("");
+
+    SDS formatList = sds_new(hashGet(ht,key.data));
+    DLinkListNode *ListHead = SDS_to_list(formatList);
+    if(ListHead == NULL)
+    {
+        sds_set(&message,"invalid list");
+        return message;
+    }
+    addToHead(&ListHead,createDLinkListNode(value.data));
+    SDS resultFormat = list_to_SDS(ListHead);
+    hashSet(ht,key.data,resultFormat.data);
+
+    char rawmessage[256];
+    snprintf(rawmessage, sizeof(rawmessage), "list change from %s to %s",formatList.data,resultFormat.data);
+    sds_set(&message,rawmessage);
+    printf("ODB addl success\n");
+
+    // autoSaver
+    increment_change_count();
+    return message;
 }
 
 int isValidPositiveInteger(const char *str) {

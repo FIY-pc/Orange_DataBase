@@ -8,6 +8,6 @@ include_directories(ORP/include)
 include_directories(resources)
 
 add_executable(${Project_Id} src/client.c)
-set_target_properties(${Project_Id} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/build)
+set_target_properties(${Project_Id} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build)
 
 target_link_libraries(${Project_Id} ORP)
