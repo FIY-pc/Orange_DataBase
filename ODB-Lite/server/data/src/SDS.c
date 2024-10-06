@@ -6,26 +6,23 @@
 
 SDS sds_new(const char *str) {
     SDS sds = {0, NULL};
-    if (str == NULL) {
-        fprintf(stderr, "Input string is NULL\n");
-        return sds;
+    if (str) {
+        sds.len = strlen(str);
+        sds.data = (char *)calloc(sds.len + 1, sizeof(char));
+        if (sds.data) {
+            strcpy(sds.data, str);
+        } else {
+            fprintf(stderr, "Memory allocation failed\n");
+        }
     }
-    sds.len = strlen(str);
-    sds.data = (char *)calloc(sds.len + 1, sizeof(char));
-    if (sds.data == NULL) {
-        fprintf(stderr, "Memory allocation failed\n");
-        return sds;
-    }
-    strcpy(sds.data, str);
     return sds;
 }
 
-void sds_free(SDS *sds)
-{
-    if (sds == NULL)
-        return;
-    free(sds->data);
-    sds->data = NULL;
+void sds_free(SDS *sds) {
+    if (sds && sds->data) {
+        free(sds->data);
+        sds->data = NULL;
+    }
 }
 
 char *sds_get(const SDS *sds)
@@ -87,6 +84,20 @@ void freeSDSArray(SDS *arr, int size) {
     for (int i = 0; i < size; i++) {
         sds_free(&arr[i]);
     }
+}
+
+char* strcat_sds(SDS *sds, SDS *add) {
+    size_t newlen = sds->len + add->len;
+    char *newdata = realloc(sds->data, newlen + 1);
+    if (!newdata) {
+        fprintf(stderr, "Memory allocation failed while concatenating SDS\n");
+        return NULL;
+    }
+    sds->data = newdata;
+    memcpy(sds->data + sds->len, add->data, add->len);
+    sds->data[newlen] = '\0';
+    sds->len = newlen;
+    return sds->data;
 }
 
 void printSDSArray(SDS *arr, int size) {

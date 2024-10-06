@@ -26,7 +26,9 @@ SDS odblindex(HashTable *ht,SDS key,SDS index);
 SDS odbhset(HashTable *ht,SDS key,SDS field,SDS value);
 SDS odbhget(HashTable *ht,SDS key,SDS field);
 SDS odbhdel(HashTable *ht,SDS key,SDS field);
-
+// 集合命令
+SDS odbsadd(HashTable *ht,SDS key,SDS value);
+SDS odbsmembers(HashTable *ht,SDS key);
 // 加载函数
 void odbLoad(HashTable *ht,char *filename);
 // 辅助函数

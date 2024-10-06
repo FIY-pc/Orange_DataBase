@@ -8,6 +8,7 @@
 #include "Hash.h"
 #include "SDS.h"
 
+#define VALUE_HASH_INIT_SIZE 9973
 
 typedef struct valueEntry
 {
@@ -18,7 +19,7 @@ typedef struct valueEntry
 
 typedef struct valueHash
 {
-    valueEntry *valueEntries[HASH_TABLE_INIT_SIZE];
+    valueEntry *valueEntries[VALUE_HASH_INIT_SIZE];
 }valueHash;
 
 const char *valueHashGet(valueHash *vht, const char *key);

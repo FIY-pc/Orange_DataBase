@@ -85,6 +85,20 @@ int sds_cmp(const SDS sds1, const SDS sds2)
     return 0;
 }
 
+char* strcat_sds(SDS *sds, SDS *add) {
+    size_t newlen = sds->len + add->len;
+    char *newdata = realloc(sds->data, newlen + 1);
+    if (!newdata) {
+        fprintf(stderr, "Memory allocation failed while concatenating SDS\n");
+        return NULL;
+    }
+    sds->data = newdata;
+    memcpy(sds->data + sds->len, add->data, add->len);
+    sds->data[newlen] = '\0';
+    sds->len = newlen;
+    return sds->data;
+}
+
 void freeSDSArray(SDS *arr, int size) {
     for (int i = 0; i < size; i++) {
         sds_free(&arr[i]);
@@ -96,3 +110,4 @@ void printSDSArray(SDS *arr, int size) {
         printf("Param %d: %s\n", i, arr[i].data);
     }
 }
+

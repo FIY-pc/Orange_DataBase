@@ -22,4 +22,5 @@ void freeSDSArray(SDS *arr, int size);
 int sds_cmp(const SDS sds1, const SDS sds2);
 int sds_len(SDS *sds);
 char *sds_get(const SDS *sds);
+char* strcat_sds(SDS *sds, SDS *add);
 #endif //SDS_H

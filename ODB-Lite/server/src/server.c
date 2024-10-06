@@ -150,6 +150,14 @@ void request_handler(HashTable *ht,int clientfd) {
                 printf("server/commandhdel\n");
                 message = odbhdel(ht,params[0],params[1]);
                 break;
+            case COMMAND_SADD:
+                printf("server/commandsadd\n");
+                message = odbsadd(ht,params[0],params[1]);
+                break;
+            case COMMAND_SMEMBERS:
+                printf("server/commandsmembers\n");
+                message = odbsmembers(ht,params[0]);
+                break;
             default:
 
             }

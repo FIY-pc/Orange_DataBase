@@ -22,29 +22,31 @@ const char *valueHashGet(valueHash *vht, const char *key) {
 }
 
 void valueHashSet(valueHash *vht, const char *key, const char *value) {
+
     unsigned int index = hash_function(key);
+
     valueEntry *newEntry = (valueEntry *)malloc(sizeof(valueEntry));
+
     if (!newEntry) {
+
         printf("Memory allocation failed for valueHashSet\n");
+
         return;
+
     }
+
     strncpy(newEntry->key, key, MAX_KEY_LEN);
-    newEntry->key[MAX_KEY_LEN - 1] = '\0'; // 确保字符串终止
+
+    newEntry->key[MAX_KEY_LEN - 1] = '\0';
+
     strncpy(newEntry->value, value, MAX_VALUE_LEN);
-    newEntry->value[MAX_VALUE_LEN - 1] = '\0'; // 确保字符串终止
+
+    newEntry->value[MAX_VALUE_LEN - 1] = '\0';
+
     newEntry->next = vht->valueEntries[index];
-    // 如果键已存在，则需要更新现有条目的值
-    valueEntry *existing = vht->valueEntries[index];
-    while (existing) {
-        if (strcmp(existing->key, key) == 0) {
-            strncpy(existing->value, value, MAX_VALUE_LEN);
-            existing->value[MAX_VALUE_LEN - 1] = '\0'; // 确保字符串终止
-            free(newEntry);
-            return;
-        }
-        existing = existing->next;
-    }
+
     vht->valueEntries[index] = newEntry;
+
 }
 
 void valueHashDelete(valueHash *vht, const char *key) {
@@ -80,13 +82,14 @@ valueHash *SDS_to_valueHash(SDS formatHash) {
     char *end = formatHash.data + formatHash.len - 1;
     char *current = start;
     while (current < end) {
+        // 找键
         char *key_start = current;
         while (current < end && !isspace(*current) && *current != ':') {
             current++;
         }
         if (current >= end) break;
         *current = '\0';
-        // 找键
+
         char *key = strdup(key_start);
         *current = ':';
         current++;
@@ -122,7 +125,7 @@ SDS valueHash_to_SDS(valueHash *vht) {
     SDS result = sds_new("{");
     char buffer[MAX_KEY_LEN + MAX_VALUE_LEN + 3];
     int first = 1;
-    for (int i = 0; i < HASH_TABLE_INIT_SIZE; i++) {
+    for (int i = 0; i < VALUE_HASH_INIT_SIZE; i++) {
         valueEntry *entry = vht->valueEntries[i];
         while (entry) {
             if (!first) {

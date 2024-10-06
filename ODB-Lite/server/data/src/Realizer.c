@@ -5,8 +5,10 @@
 #include "Realizer.h"
 
 #include "autoSaver.h"
-#include "list.h"
+
+#include "valueList.h"
 #include "valueHash.h"
+#include "valueSet.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -296,6 +298,51 @@ SDS odbhdel(HashTable *ht,SDS key,SDS field)
     sds_set(&message,rawmessage);
     // autoSaver
     increment_change_count();
+    return message;
+}
+
+SDS odbsadd(HashTable *ht,SDS key,SDS value)
+{
+    SDS message = sds_new("");
+    char rawmessage[256];
+    SDS formatSet = sds_new(hashGet(ht,key.data));
+    valueHash *hash_set = SDS_to_valueSet(formatSet);
+    if(hash_set == NULL)
+    {
+        sds_set(&message,"invalid set");
+        return message;
+    }
+
+    // 查询值是否已经存在
+    const char *rawvalue = valueHashGet(hash_set,value.data);
+    if(rawvalue != NULL)
+    {
+        sprintf(rawmessage,"value %s is exist",rawvalue);
+        sds_set(&message,rawmessage);
+        return message;
+    }
+    // 添加值
+    valueHashSet(hash_set,value.data,value.data);
+    SDS resultFormat = valueSet_to_SDS(hash_set);
+    hashSet(ht,key.data,resultFormat.data);
+    // message生成
+    sprintf(rawmessage,"Set change from %s to %s by an add",formatSet.data,resultFormat.data);
+    sds_set(&message,rawmessage);
+    // autoSaver
+    increment_change_count();
+    return message;
+}
+SDS odbsmembers(HashTable *ht,SDS key)
+{
+    SDS message = sds_new("");
+    SDS formatSet = sds_new(hashGet(ht,key.data));
+    valueHash *hash_set = SDS_to_valueSet(formatSet);
+    if(hash_set == NULL)
+    {
+        sds_set(&message,"invalid set");
+        return message;
+    }
+    sds_set(&message,formatSet.data);
     return message;
 }
 

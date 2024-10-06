@@ -125,6 +125,20 @@ int command_check(const SDS *command)
             return -1;
         }
         break;
+    case COMMAND_SADD:
+        if (paramCount != 2)
+        {
+            printf("invalid params num\n");
+            return -1;
+        }
+        break;
+    case COMMAND_SMEMBERS:
+        if (paramCount != 1)
+        {
+            printf("invalid params num\n");
+            return -1;
+        }
+        break;
     default:
     }
     sds_free(&method);
@@ -179,6 +193,14 @@ CommandType getCommandType(const SDS *method) {
     if (strncmp(method->data,"hdel",4) == 0)
     {
         return COMMAND_HDEL;
+    }
+    if (strncmp(method->data,"sadd",4) == 0)
+    {
+        return COMMAND_SADD;
+    }
+    if (strncmp(method->data,"smembers",8) == 0)
+    {
+        return COMMAND_SMEMBERS;
     }
     return COMMAND_UNKNOWN;
 }
