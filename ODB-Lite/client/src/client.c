@@ -31,10 +31,10 @@ int main(){
     //收发数据
      while(1)
      {
-         char buffer[BUFSIZ] = {0};
+         char buffer[MAX_LINE_LEN];
          // 输入命令并进行检查
-         fgets(buffer,BUFSIZ, stdin);
-         buffer[strcspn(buffer,"\n")]=0;
+         fgets(buffer,MAX_LINE_LEN-1, stdin);
+
          if(strncmp(buffer,"close",5) == 0)
          {
              close(sockfd);
@@ -47,18 +47,21 @@ int main(){
              affair(sockfd);
              continue;
          }
-         // 自动事务提交，一命令一事务
-         char request[2][MAX_LINE_LEN];
-         strncpy(request[0], buffer, strlen(buffer)+1);
-         strncpy(request[1], "commit", strlen("commit")+1);
 
-         writelines(sockfd, request,2);
+         //自动事务提交，一命令一事务
+         char *request[MAX_LINES_NUM];
+         request[0] = strdup(buffer);
+         request[0][strcspn(request[0], "\n")] = 0;
 
-         printf("commited\n");
-         char response[MAX_LINES_NUM][MAX_LINES_NUM];
-         int responseNum = readlines(sockfd,response);
+         writelines(sockfd, request,1);
+         printf("affair commit success!\n");
+
+         char **response;
+         int responseNum = readlines(sockfd,&response);
+         printf("responseNum = %d\n",responseNum);
          for(int i=0;i<responseNum;i++)
          {
+             if(response[i]==NULL) continue;
              printf("%s\n",response[i]);
          }
     }

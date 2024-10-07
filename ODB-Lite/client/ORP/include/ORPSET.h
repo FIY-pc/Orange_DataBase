@@ -23,8 +23,6 @@
 #define MAX_LINES_NUM 9999
 #define MAX_LINE_LEN 512
 #define LINE_END_SIGN "\n"
-#define ORP_OK_SIGN "orpok"
-#define ORP_ERROR_SIGN "orperr"
 
 const char* ORPGetVersion();
 

@@ -15,19 +15,12 @@
 #include <unistd.h>
 
 
-// 完成信息
-// printf("affair_handler: affair execute success");
-//
-// write(clientfd,rawmessage,strlen(rawmessage));
-
-//
-// write(clientfd,rawmessage,strlen(rawmessage));
 int commands_handler(HashTable *ht,int clientfd,SDS *commands)
 {
     int commandOrdinal = 0;
 
     SDS *current_command = commands;
-    char response[MAX_LINES_NUM][MAX_LINE_LEN];
+    char *response[MAX_LINES_NUM];
     int responseIndex = 0;
 
     char rawresponse[MAX_LINE_LEN]; // 用于暂存加工过程中的一条响应
@@ -46,15 +39,17 @@ int commands_handler(HashTable *ht,int clientfd,SDS *commands)
         // 命令解析
         if (command_check(current_command) == -1) {
             printf("commands_handler: Command not found\n");
-            strncpy(response[responseIndex], "Command not found",MAX_LINE_LEN);
-            responseIndex++;
-            commandOrdinal = 0;
+            snprintf(rawresponse,sizeof(rawresponse),"Execute affair failed, %d commands input , %d success",totalCommands,commandOrdinal);
+            char *temp[1];
+            temp[0] = strdup(rawresponse);
+            writelines(clientfd,temp,1);
+            return commandOrdinal;
         }
 
         // 执行命令并保存响应信息
         SDS message = command_executor(ht,*current_command);
         sprintf(rawresponse, "OK,%s",message.data);
-        strncpy(response[responseIndex], rawresponse, MAX_LINE_LEN);
+        response[responseIndex] = strdup(rawresponse);
 
         // 清空rawresponse
         memset(rawresponse, 0, MAX_LINE_LEN);
@@ -62,16 +57,9 @@ int commands_handler(HashTable *ht,int clientfd,SDS *commands)
         current_command++;
         commandOrdinal++;
     }
-    if (commandOrdinal == 0)
-    {
-        snprintf(rawresponse,sizeof(rawresponse),"Execute affair failed, %d commands input , %d success",totalCommands,commandOrdinal);
-        strncpy(response[responseIndex], rawresponse, MAX_LINE_LEN);
-        responseIndex++;
-        writelines(clientfd,response,responseIndex);
-        return commandOrdinal;
-    }
+
     snprintf(rawresponse,sizeof(rawresponse),"Execute affair success, %d commands input , %d success",totalCommands,commandOrdinal);
-    strncpy(response[responseIndex], rawresponse, MAX_LINE_LEN);
+    response[responseIndex] = strdup(rawresponse);
     responseIndex++;
     writelines(clientfd,response,responseIndex);
     return commandOrdinal;

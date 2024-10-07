@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <transmit.h>
 #include <unistd.h>
 
 void affair_handler(HashTable **ht,int clientfd,SDS *affair,int isautocommit)
@@ -18,15 +19,19 @@ void affair_handler(HashTable **ht,int clientfd,SDS *affair,int isautocommit)
     HashTable *snapshot = copyHashTable(*ht);
 
     SDS *current=affair;
-    if(isautocommit)
+    if(isautocommit==1)
     {
         commands_handler(snapshot,clientfd,current);
+        *ht = copyHashTable(snapshot);
+        freeHashTable(snapshot);
         return;
     }
-
-    if(strncmp(affair->data,"begin",5)!=0)
+    if(isautocommit==0 && strncmp(affair[0].data,"begin",5)!=0)
     {
-        write(clientfd,"1:Illegal Input\n",strlen("1:Illegal Input\n"));
+        char *errmessage[1];
+        errmessage[0] = strdup("illegal Input");
+        writelines(clientfd,errmessage,1);
+        freeHashTable(snapshot);
         return;
     }
 
@@ -38,10 +43,11 @@ void affair_handler(HashTable **ht,int clientfd,SDS *affair,int isautocommit)
     }
 
     // 执行命令
-    int successCount = commands_handler(snapshot,clientfd,current);
+    int successCount = commands_handler(snapshot,clientfd,current+1);
     if(successCount != totalCount)
     {
         freeHashTable(snapshot);
+        printf("affair_handler 3\n");
         return;
     }
     // 用修改后的快照覆盖原哈希表

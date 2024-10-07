@@ -6,8 +6,8 @@
 #define TRANSMIT_H
 
 char *dataPack(char **data, int linesNum);
-void dataUnpack(char *pack, char **data, int *outputLinesNum);
-int readlines(int fd, char **data);
+char** dataUnpack(char *pack, int *outputLinesNum);
+int readlines(int fd, char ***data);
 void writelines(int fd, char **data,int linesNum);
 
 #endif //TRANSMIT_H

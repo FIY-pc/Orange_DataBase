@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <transmit.h>
 #include <unistd.h>
 #include <arpa/inet.h>
 
@@ -93,9 +94,14 @@ void connect_handler(HashTable *ht,int clientfd) {
         }
         else if(strncmp(autocommit,"true",strlen("ture")) == 0)
         {
+            printf("Autocommit enabled\n");
             autoCommitSwitch = 1;
         }
-        else if (strncmp(autocommit,"false",strlen("false")) == 0){}
+        else if (strncmp(autocommit,"false",strlen("false")) == 0)
+        {
+            printf("Autocommit disabled\n");
+            autoCommitSwitch = 0;
+        }
         else
         {
             perror("Autocommit setting wrong!\n");
@@ -104,38 +110,24 @@ void connect_handler(HashTable *ht,int clientfd) {
         }
 
         SDS affair[MAX_AFFAIR_SIZE]={0,NULL};
-        int affairIndex = 0;
 
-        // 处理请求
-        char request[1024];
-        int bytes_received;
-        // 命令存包
-        while ((bytes_received = recv(clientfd, request, sizeof(request) - 1, 0)) > 0) {
-            request[bytes_received] = '\0';  // 确保字符串以null结尾
-            printf("Request received: %s\n", request);
-            if(strncmp(request,"close",strlen("close")) == 0)
-            {
-                printf("connect closed\n");
-                close(clientfd);
-                return;
-            }
-            if(strncmp(request,"commit",6)==0)
-            {
-                break;
-            }
-            affair[affairIndex] = sds_new(request);
-            affairIndex++;
+        // 请求存包
+        char **request;
+        int lines = readlines(clientfd,&request);
+        if (lines <= 0)
+        {
+            perror("readlines fail!\n");
+            close(clientfd);
+            return;
+        }
+        // 命令打包
+        printf("lines = %d\n", lines);
+        for (int i = 0; i < lines; i++)
+        {
+            affair[i] = sds_new(request[i]);
         }
         // 事务处理
         affair_handler(&ht,clientfd,affair,autoCommitSwitch);
-
-        if (bytes_received == 0) {
-            printf("Client disconnected\n");
-            close(clientfd);
-        } else if (bytes_received < 0) {
-            perror("recv fail!\n");
-            close(clientfd);
-        }
     }
 }
 
