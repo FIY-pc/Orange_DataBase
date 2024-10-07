@@ -1,15 +1,18 @@
+#include <affair.h>
+#include <ORPSET.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+
 #include "config.h"
 #include "SDS.h"
 #include "command.h"
 #include "Realizer.h"
 
 void run_server();
-void request_handler(HashTable *ht,int clientfd);
+void connect_handler(HashTable *ht,int clientfd);
 
 int main() {
     run_server();
@@ -66,110 +69,73 @@ void run_server() {
     struct sockaddr_in client;
     socklen_t len = sizeof(client);
     while (1) {
+
+        // 接受连接请求
         int clientfd = accept(sockfd, (struct sockaddr *)&client, &len);
         if (clientfd < 0) {
             perror("accept fail!\n");
             continue;
         }
         printf("Client connected\n");
-        request_handler(ht,clientfd);
-        close(clientfd);  // 关闭客户端连接
+        connect_handler(ht,clientfd);
     }
 }
 
-void request_handler(HashTable *ht,int clientfd) {
-    char request[1024];
-    int bytes_received;
-    SDS command;
-    while ((bytes_received = recv(clientfd, request, sizeof(request) - 1, 0)) > 0) {
-        request[bytes_received] = '\0';  // 确保字符串以null结尾
-        command = sds_new(request);
+void connect_handler(HashTable *ht,int clientfd) {
+    while (1)
+    {
+        // autocommit
+        int autoCommitSwitch = 0;
+        const char *autocommit = hashGet(ht,ODB_SETTING_AUTOCOMMIT);
+        if (autocommit == NULL)
+        {
+            perror("hashGet autocommit setting fail!\n");
+        }
+        else if(strncmp(autocommit,"true",strlen("ture")) == 0)
+        {
+            autoCommitSwitch = 1;
+        }
+        else if (strncmp(autocommit,"false",strlen("false")) == 0){}
+        else
+        {
+            perror("Autocommit setting wrong!\n");
+            printf("autocommit setting now set to 'false'\n");
+            hashSet(ht,ODB_SETTING_AUTOCOMMIT,"false");
+        }
 
-        if (command_check(&command) == -1) {
-            printf("Command not found\n");
-            write(clientfd, "Invalid command\n", 15);
-        } else {
-            SDS message = sds_new("");
-            char response[1024] = "";
+        SDS affair[MAX_AFFAIR_SIZE]={0,NULL};
+        int affairIndex = 0;
 
-            SDS method,paramsline;
-            splitCommand(&command,&method,&paramsline);
-            printf("server/splitCommand\n");//
-            CommandType commandType = getCommandType(&method);
-            printf("server/getCommandType\n");//
-            SDS params[MAX_PARAM_NUM];
-            splitParams(paramsline,params,MAX_PARAM_NUM);
-            printf("server/splitParams\n"); //
-            switch (commandType)
+        // 处理请求
+        char request[1024];
+        int bytes_received;
+        // 命令存包
+        while ((bytes_received = recv(clientfd, request, sizeof(request) - 1, 0)) > 0) {
+            request[bytes_received] = '\0';  // 确保字符串以null结尾
+            printf("Request received: %s\n", request);
+            if(strncmp(request,"close",strlen("close")) == 0)
             {
-            case COMMAND_GET:
-                printf("server/commandget\n"); //
-                message = odbget(ht, params[0]);
-                break;
-            case COMMAND_SET:
-                printf("server/commandset\n"); //
-                message = odbsetSDS(ht, params[0], params[1]);
-                break;
-            case COMMAND_DELETE:
-                printf("server/commanddelete\n"); //
-                message = odbdelete(ht, params[0]);
-                break;
-            case COMMAND_SAVE:
-                printf("server/commandsave\n");
-                message = odbsave(ht,ODB_FILE_DIR);
-                break;
-            case COMMAND_RGSAVE:
-                printf("server/commandrgsave\n");
-                message = odbrgsave(ht,ODB_FILE_DIR);
-                break;
-            case COMMAND_AUTOSAVE:
-                printf("server/commandautosave\n");
-                message = odbautosave(ht,ODB_FILE_DIR, params[0], params[1]);
-                break;
-            case COMMAND_ADDR:
-                printf("server/commandaddr\n");
-                message = odbaddr(ht, params[0], params[1]);
-                break;
-            case COMMAND_ADDL:
-                printf("server/commandaddl\n");
-                message = odbaddl(ht, params[0], params[1]);
-                break;
-            case COMMAND_LINDEX:
-                printf("server/commandlindex\n");
-                message = odblindex(ht, params[0], params[1]);
-                break;
-            case COMMAND_HSET:
-                printf("server/commandhset\n");
-                message = odbhset(ht,params[0],params[1],params[2]);
-                break;
-            case COMMAND_HGET:
-                printf("server/commandhget\n");
-                message = odbhget(ht,params[0],params[1]);
-                break;
-            case COMMAND_HDEL:
-                printf("server/commandhdel\n");
-                message = odbhdel(ht,params[0],params[1]);
-                break;
-            case COMMAND_SADD:
-                printf("server/commandsadd\n");
-                message = odbsadd(ht,params[0],params[1]);
-                break;
-            case COMMAND_SMEMBERS:
-                printf("server/commandsmembers\n");
-                message = odbsmembers(ht,params[0]);
-                break;
-            default:
-
+                printf("connect closed\n");
+                close(clientfd);
+                return;
             }
+            if(strncmp(request,"commit",6)==0)
+            {
+                break;
+            }
+            affair[affairIndex] = sds_new(request);
+            affairIndex++;
+        }
+        // 事务处理
+        affair_handler(&ht,clientfd,affair,autoCommitSwitch);
 
-            sprintf(response, "OK\n%s",message.data);
-            write(clientfd,response,strlen(response)+1);
+        if (bytes_received == 0) {
+            printf("Client disconnected\n");
+            close(clientfd);
+        } else if (bytes_received < 0) {
+            perror("recv fail!\n");
+            close(clientfd);
         }
     }
-
-    if (bytes_received == 0) {
-        printf("Client disconnected\n");
-    } else if (bytes_received < 0) {
-        perror("recv fail!\n");
-    }
 }
+

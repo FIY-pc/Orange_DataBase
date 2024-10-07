@@ -1,10 +1,7 @@
+#include <command_parser.h>
+
 #include "command.h"
-
-#include <Realizer.h>
-
 #include "ORPSET.h"
-
-#include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 

@@ -7,10 +7,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_KEY_LEN 256
-#define MAX_VALUE_LEN 256
-#define HASH_TABLE_INIT_SIZE 100
-
 void hashInit(HashTable *ht) {
     for (int i = 0; i < HASH_TABLE_INIT_SIZE; i++) {
         ht->entries[i] = NULL;
@@ -164,4 +160,36 @@ int isFileEmpty(const char *filename) {
     long size = ftell(file);
     fclose(file);
     return size == 0;
+}
+
+HashTable *copyHashTable(const HashTable *src) {
+    if (src == NULL) {
+        return NULL;
+    }
+    HashTable *dest = (HashTable *)malloc(sizeof(HashTable));
+    if (dest == NULL) {
+        fprintf(stderr, "Memory allocation failed\n");
+        return NULL;
+    }
+    hashInit(dest);
+    for (int i = 0; i < HASH_TABLE_INIT_SIZE; i++) {
+        Entry *srcEntry = src->entries[i];
+        while (srcEntry != NULL) {
+            hashSet(dest, srcEntry->key, srcEntry->value);
+            // 复制其他字段
+            unsigned int index = hash_function(srcEntry->key);
+            Entry *destEntry = dest->entries[index];
+            while (destEntry != NULL) {
+                if (strcmp(destEntry->key, srcEntry->key) == 0) {
+                    destEntry->is_modified = srcEntry->is_modified;
+                    destEntry->is_loaded = srcEntry->is_loaded;
+                    destEntry->is_in_hash_table = srcEntry->is_in_hash_table;
+                    break;
+                }
+                destEntry = destEntry->next;
+            }
+            srcEntry = srcEntry->next;
+        }
+    }
+    return dest;
 }

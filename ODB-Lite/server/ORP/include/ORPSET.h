@@ -19,13 +19,13 @@
 // 客户端规定
 #define MAX_AFFAIR_SIZE 1000
 
-// 数据包格式
-typedef struct
-{
-    char type;
-    int32_t len;
-    SDS sds;
-}SDSData;
+// 包格式
+#define MAX_LINES_NUM_BYTES 4
+#define MAX_LINES_NUM 9999
+#define MAX_LINE_LEN 512
+#define LINE_END_SIGN "\n"
+#define ORP_OK_SIGN "orpok"
+#define ORP_ERROR_SIGN "orperr"
 
 const char* ORPGetVersion();
 

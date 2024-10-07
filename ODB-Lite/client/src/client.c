@@ -1,10 +1,11 @@
-#include <ORPSET.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
 
+#include "ORPSET.h"
+#include "transmit.h"
 #include "config.h"
 #include "affair.h"
 
@@ -28,27 +29,37 @@ int main(){
 
 
     //收发数据
-    while(1)
-    {
-        char buffer[BUFSIZ]="";
-        // 输入命令并进行检查
-        fgets(buffer,BUFSIZ, stdin);
-        if(strcmp(buffer,"close") == 0)
-        {
-            close(sockfd);
-            printf("client closed\nPress enter to exit\n");
-            getchar();
-            return 0;
-        }
-        if(strcmp(buffer,"begin") == 0)
-        {
-            affair(sockfd);
-            continue;
-        }
-        // 常规发送命令，一命令一事务
-        write(sockfd,buffer,strlen(buffer));
-        char response[BUFSIZ];
-        read(sockfd,response,BUFSIZ);
-        printf("%s\n",response);
+     while(1)
+     {
+         char buffer[BUFSIZ] = {0};
+         // 输入命令并进行检查
+         fgets(buffer,BUFSIZ, stdin);
+         buffer[strcspn(buffer,"\n")]=0;
+         if(strncmp(buffer,"close",5) == 0)
+         {
+             close(sockfd);
+             printf("client closed\nPress enter to exit\n");
+             getchar();
+             return 0;
+         }
+         if(strncmp(buffer,"begin",5) == 0)
+         {
+             affair(sockfd);
+             continue;
+         }
+         // 自动事务提交，一命令一事务
+         char request[2][MAX_LINE_LEN];
+         strncpy(request[0], buffer, strlen(buffer)+1);
+         strncpy(request[1], "commit", strlen("commit")+1);
+
+         writelines(sockfd, request,2);
+
+         printf("commited\n");
+         char response[MAX_LINES_NUM][MAX_LINES_NUM];
+         int responseNum = readlines(sockfd,response);
+         for(int i=0;i<responseNum;i++)
+         {
+             printf("%s\n",response[i]);
+         }
     }
 }

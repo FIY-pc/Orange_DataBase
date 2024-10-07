@@ -20,13 +20,14 @@
 void odbLoad(HashTable *ht,char *filename)
 {
     hash_load_from_file(ht,filename);
+    // autoSaver
     const char *autoSaveTime = hashGet(ht,ODB_SETTING_AUTOSAVE_TIME);
     if(!autoSaveTime)
     {
         hashSet(ht, ODB_SETTING_AUTOSAVE_TIME,"0");
     }else
     {
-        printf("Auto saving time: %s \n",autoSaveTime);
+        printf("odbLoad: Auto saving time: %s \n",autoSaveTime);
     }
     const char *autoSaveChangeNum = hashGet(ht,ODB_SETTING_AUTOSAVE_CHANGENUM);
     if(!autoSaveChangeNum)
@@ -35,10 +36,23 @@ void odbLoad(HashTable *ht,char *filename)
     }
     else
     {
-        printf("Auto saving change num: %s \n",autoSaveChangeNum);
+        printf("odbLoad: Auto saving change num: %s \n",autoSaveChangeNum);
     }
+
+    // affair
+    const char *autocommit = hashGet(ht,ODB_SETTING_AUTOCOMMIT);
+    if(!autocommit)
+    {
+        hashSet(ht, ODB_SETTING_AUTOCOMMIT,"false");
+        printf("odbLoad: affair auto commit %s\n",autocommit);
+    }
+    else
+    {
+        printf("odbLoad: affair auto commit %s\n",autocommit);
+    }
+
     odbsave(ht,filename);
-    printf("ODB Loaded\n");
+    printf("odbLoad:ODB Loaded\n");
 }
 
 SDS odbget(HashTable *ht,SDS key)
@@ -69,7 +83,7 @@ SDS odbdelete(HashTable *ht, SDS key) {
 SDS odbsetSDS(HashTable *ht,SDS key , SDS value)
 {
     hashSet(ht,key.data,value.data);
-    printf("ODB Set end\n");
+    printf("odbsetSDS: ODB Set end\n");
     char rawmessage[256];
     sprintf(rawmessage,"set %s=%s success",key.data,hashGet(ht,key.data));
     printf(":%s",rawmessage);
@@ -83,22 +97,22 @@ SDS odbsetSDS(HashTable *ht,SDS key , SDS value)
 
 SDS odbsave(HashTable *ht,const char *filename)
 {
-    printf("ODB Save begin\n");
+    printf("odbsave: ODB Save begin\n");
     hash_save_to_file(ht,filename);
     char temp[256];
     snprintf(temp, sizeof(temp), "ODB save to %s", filename);
-    printf("ODB Save end\n");
+    printf("odbsave: ODB Save end\n");
     SDS message = sds_new(temp);
     return message;
 }
 
 SDS odbrgsave(HashTable *ht,const char *filename)
 {
-    printf("ODB rgsave begin\n");
+    printf("odbrgsave: ODB rgsave begin\n");
     pid_t pid = fork();
     if(pid<0)
     {
-        perror("fork failed\n");
+        perror("odbrgsave: fork failed\n");
         return sds_new("rgsave failed");
     }
     if(pid == 0)
@@ -106,7 +120,7 @@ SDS odbrgsave(HashTable *ht,const char *filename)
         hash_save_to_file(ht,filename);
         exit(0);
     }
-    printf("ODB rgsave end\n");
+    printf("odbrgsave: ODB rgsave end\n");
     return sds_new("rgsave success");
 }
 
@@ -114,13 +128,13 @@ SDS odbautosave(HashTable *ht,const char *filename,SDS time,SDS changeNum)
 {
     if(isValidNaturalInteger(time.data)==0 || isValidNaturalInteger(changeNum.data)==0)
     {
-        printf("ODB autosave failed due to illegal param\n");
+        printf("odbautosave: ODB autosave failed due to illegal param\n");
         return sds_new("illegal param");
     }
     if(strcmp(time.data,"0")==0||strcmp(changeNum.data,"0")==0)
     {
         close_autoSaver();
-        printf("ODB autosave close\n");
+        printf("odbautosave: ODB autosave close\n");
         return sds_new("ODB autosave close");
     }
     if(autoSaverSwitch==1)
@@ -129,12 +143,12 @@ SDS odbautosave(HashTable *ht,const char *filename,SDS time,SDS changeNum)
         usleep(2000);
         open_autoSaver();
         autoSaver_create(ht,filename,time,changeNum);
-        printf("ODB autosave REOPEN\n");
+        printf("odbautosave: ODB autosave REOPEN\n");
 
         // 保存配置信息
         hashSet(ht,ODB_SETTING_AUTOSAVE_TIME,time.data);
         hashSet(ht,ODB_SETTING_AUTOSAVE_CHANGENUM,changeNum.data);
-        printf("ODB autosave setting saved\n");
+        printf("odbautosave: ODB autosave setting saved\n");
 
         char rawmessage[256];
         snprintf(rawmessage, sizeof(rawmessage), "ODB autosave REOPEN!\nSave when %s changes\nEvery %s seconds run a check",changeNum.data,time.data);
@@ -142,12 +156,12 @@ SDS odbautosave(HashTable *ht,const char *filename,SDS time,SDS changeNum)
     }
     open_autoSaver();
     autoSaver_create(ht,filename,time,changeNum);
-    printf("ODB autosave OPEN\n");
+    printf("odbautosave: ODB autosave OPEN\n");
 
     // 保存配置信息
     hashSet(ht,ODB_SETTING_AUTOSAVE_TIME,time.data);
     hashSet(ht,ODB_SETTING_AUTOSAVE_CHANGENUM,changeNum.data);
-    printf("ODB autosave setting saved\n");
+    printf("odbautosave: ODB autosave setting saved\n");
     // message生成
     char rawmessage[256];
     snprintf(rawmessage, sizeof(rawmessage), "ODB autosave OPEN!\nSave when %s changes\nEvery %s seconds run a check",changeNum.data,time.data);
@@ -172,7 +186,7 @@ SDS odbaddr(HashTable *ht,SDS key , SDS value)
     char rawmessage[256];
     snprintf(rawmessage, sizeof(rawmessage), "list change from %s to %s",formatList.data,resultFormat.data);
     sds_set(&message,rawmessage);
-    printf("ODB addr success\n");
+    printf("odbaddr: ODB addr success\n");
 
     // autoSaver
     increment_change_count();
@@ -197,7 +211,7 @@ SDS odbaddl(HashTable *ht,SDS key , SDS value)
     char rawmessage[256];
     snprintf(rawmessage, sizeof(rawmessage), "list change from %s to %s",formatList.data,resultFormat.data);
     sds_set(&message,rawmessage);
-    printf("ODB addl success\n");
+    printf("odbaddl: ODB addl success\n");
 
     // autoSaver
     increment_change_count();
@@ -244,7 +258,7 @@ SDS odbhset(HashTable *ht,SDS key,SDS field,SDS value)
     char rawmessage[256];
     sprintf(rawmessage,"valueHash set %s:%s",field.data,valueHashGet(value_hash,field.data));
     sds_set(&message,rawmessage);
-    printf("ODB hset success\n");
+    printf("odbhset: ODB hset success\n");
 
     // autoSaver
     increment_change_count();

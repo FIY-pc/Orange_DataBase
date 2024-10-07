@@ -28,4 +28,5 @@ void hashDelete(HashTable *ht, const char *key);
 void freeHashTable(HashTable *ht);
 void hash_save_to_file(HashTable *ht, const char *filename);
 void hash_load_from_file(HashTable *ht, const char *filename);
+HashTable *copyHashTable(const HashTable *src);
 #endif //HASH_H
