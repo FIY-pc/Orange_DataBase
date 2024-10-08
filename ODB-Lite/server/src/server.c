@@ -1,6 +1,7 @@
 #include <affair.h>
 #include <autoSaver.h>
 #include <ORPSET.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,11 +11,18 @@
 
 #include "config.h"
 #include "SDS.h"
-#include "command.h"
 #include "Realizer.h"
 
+pthread_mutex_t ht_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+typedef struct
+{
+    HashTable **ppht;
+    int clientfd;
+}connection_args;
+
 void run_server();
-void connect_handler(HashTable **ht,int clientfd);
+void *connect_handler(void *args);
 
 int main() {
     run_server();
@@ -79,15 +87,34 @@ void run_server() {
             continue;
         }
         printf("Client connected\n");
-        connect_handler(&ht,clientfd);
+
+        // 打包连接线程参数
+        connection_args *args = malloc(sizeof(connection_args));
+        args->ppht = &ht;
+        args->clientfd = clientfd;
+
+        // 建立连接线程
+        pthread_t connection_thread;
+        if (pthread_create(&connection_thread, NULL, connect_handler, (void *)args) != 0) {
+            free(args); // 创建线程失败，释放args
+            perror("connection_thread create fail!\n");
+        }
+        free(args);
+        pthread_detach(connection_thread);
     }
 }
 
-void connect_handler(HashTable **ht,int clientfd) {
+
+void *connect_handler(void *args) {
+    connection_args *params = (connection_args *)args;
+    HashTable **ht = params->ppht;
+    int clientfd = params->clientfd;
+
     while (1)
     {
         // autocommit
         int autoCommitSwitch = 0;
+        pthread_mutex_lock(&ht_mutex);        // 为ht加锁
         const char *autocommit = hashGet(*ht,ODB_SETTING_AUTOCOMMIT);
         if (autocommit == NULL)
         {
@@ -109,7 +136,7 @@ void connect_handler(HashTable **ht,int clientfd) {
             printf("autocommit setting now set to 'false'\n");
             hashSet(*ht,ODB_SETTING_AUTOCOMMIT,"false");
         }
-
+        pthread_mutex_unlock(&ht_mutex); // ht解锁
         SDS affair[MAX_AFFAIR_SIZE]={0,NULL};
 
         // 请求存包
@@ -119,7 +146,7 @@ void connect_handler(HashTable **ht,int clientfd) {
         {
             perror("readlines fail!\n");
             close(clientfd);
-            return;
+            return NULL;
         }
         // 命令打包
         printf("lines = %d\n", lines);
@@ -130,11 +157,10 @@ void connect_handler(HashTable **ht,int clientfd) {
         // 事务处理
         affair_handler(ht,clientfd,affair,autoCommitSwitch);
 
-        // autoSaver reopen
+        // autoSaver reopen(待优化)
         autoSaverSwitch = 0;
         usleep(2000);
         autoSaverSwitch = 1;
         odbautosave(*ht,ODB_FILE_DIR,odbget(*ht,sds_new(ODB_SETTING_AUTOSAVE_TIME)),odbget(*ht,sds_new(ODB_SETTING_AUTOSAVE_CHANGENUM)));
     }
 }
-
