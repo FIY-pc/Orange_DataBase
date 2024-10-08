@@ -9,8 +9,17 @@
 #include <stdlib.h>
 #include <string.h>
 
+unsigned int value_hash_function(const char *key) {
+    unsigned int hash = 5381;
+    int c;
+    while ((c = *key++)) {
+        hash = ((hash << 5) + hash) + c;
+    }
+    return hash % VALUE_HASH_INIT_SIZE;
+}
+
 const char *valueHashGet(valueHash *vht, const char *key) {
-    unsigned int index = hash_function(key);
+    unsigned int index = value_hash_function(key);
     valueEntry *entry = vht->valueEntries[index];
     while (entry) {
         if (strcmp(entry->key, key) == 0) {
@@ -22,8 +31,12 @@ const char *valueHashGet(valueHash *vht, const char *key) {
 }
 
 void valueHashSet(valueHash *vht, const char *key, const char *value) {
-
-    unsigned int index = hash_function(key);
+    if (value == NULL )
+    {
+        perror("valueHashSet: vht is null");
+        return;
+    }
+    unsigned int index = value_hash_function(key);
 
     valueEntry *newEntry = (valueEntry *)malloc(sizeof(valueEntry));
 
@@ -43,14 +56,14 @@ void valueHashSet(valueHash *vht, const char *key, const char *value) {
 
     newEntry->value[MAX_VALUE_LEN - 1] = '\0';
 
-    newEntry->next = vht->valueEntries[index];
+    newEntry->next = vht->valueEntries[index]; // 发生段错误
 
     vht->valueEntries[index] = newEntry;
 
 }
 
 void valueHashDelete(valueHash *vht, const char *key) {
-    unsigned int index = hash_function(key);
+    unsigned int index = value_hash_function(key);
     valueEntry *entry = vht->valueEntries[index];
     valueEntry *prev = NULL;
     while (entry) {

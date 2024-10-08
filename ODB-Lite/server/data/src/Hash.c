@@ -130,6 +130,11 @@ void hash_load_from_file(HashTable *ht, const char *filename) {
 }
 
 void hash_save_to_file(HashTable *ht, const char *filename) {
+    if(ht==NULL || filename==NULL)
+    {
+        fprintf(stderr, "hash_save_from_file: param is NULL\n");
+        return;
+    }
     FILE *file = fopen(filename, "w");
     if (!file) {
         fprintf(stderr, "Failed to open file for writing\n");
@@ -175,21 +180,51 @@ HashTable *copyHashTable(const HashTable *src) {
     for (int i = 0; i < HASH_TABLE_INIT_SIZE; i++) {
         Entry *srcEntry = src->entries[i];
         while (srcEntry != NULL) {
-            hashSet(dest, srcEntry->key, srcEntry->value);
-            // 复制其他字段
-            unsigned int index = hash_function(srcEntry->key);
-            Entry *destEntry = dest->entries[index];
-            while (destEntry != NULL) {
-                if (strcmp(destEntry->key, srcEntry->key) == 0) {
-                    destEntry->is_modified = srcEntry->is_modified;
-                    destEntry->is_loaded = srcEntry->is_loaded;
-                    destEntry->is_in_hash_table = srcEntry->is_in_hash_table;
-                    break;
-                }
-                destEntry = destEntry->next;
+            // 为新条目分配内存
+            Entry *newEntry = (Entry *)malloc(sizeof(Entry));
+            if (newEntry == NULL) {
+                fprintf(stderr, "Memory allocation failed for new entry\n");
+                // 清理已分配的内存并返回NULL（或处理错误）
+                // ...
+                return NULL;
             }
+            // 复制键和值
+            strncpy(newEntry->key, srcEntry->key, MAX_KEY_LEN);
+            strncpy(newEntry->value, srcEntry->value, MAX_VALUE_LEN);
+            // 复制其他字段
+            newEntry->is_modified = srcEntry->is_modified;
+            newEntry->is_loaded = srcEntry->is_loaded;
+            newEntry->is_in_hash_table = 1; // 假设新条目应该被标记为在哈希表中
+            newEntry->next = NULL;
+
+            // 将新条目插入到目标哈希表中
+            unsigned int index = hash_function(newEntry->key);
+            newEntry->next = dest->entries[index];
+            dest->entries[index] = newEntry;
+
             srcEntry = srcEntry->next;
         }
     }
     return dest;
+}
+
+void replaceHashTable(HashTable **original, HashTable *replacement) {
+    if (original == NULL || *original == NULL || replacement == NULL) {
+        // 处理错误情况，例如无效的指针
+        return;
+    }
+
+    // 释放原哈希表中的所有条目
+    for (int i = 0; i < HASH_TABLE_INIT_SIZE; i++) {
+        Entry *entry = (*original)->entries[i];
+        while (entry != NULL) {
+            Entry *nextEntry = entry->next;
+            // 释放条目的内存（如果需要的话）
+            free(entry);
+            entry = nextEntry;
+        }
+    }
+
+    free(*original);
+    *original = replacement;
 }

@@ -32,7 +32,7 @@ valueHash *SDS_to_valueSet(SDS formatSet) {
         *current = '\0';
         char *value = strdup(value_start);
         *current = ';';
-        valueHashSet(vht, value, value);
+        valueHashSet(vht, value, value); // 此处发生段错误
         current++;
         while (current < end && isspace(*current)) {
             current++;

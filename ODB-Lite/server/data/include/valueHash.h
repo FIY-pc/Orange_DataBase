@@ -5,7 +5,6 @@
 #ifndef VALUEHASH_H
 #define VALUEHASH_H
 #include <DataSet.h>
-#include "Hash.h"
 #include "SDS.h"
 
 #define VALUE_HASH_INIT_SIZE 9973

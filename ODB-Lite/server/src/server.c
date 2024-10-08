@@ -1,4 +1,5 @@
 #include <affair.h>
+#include <autoSaver.h>
 #include <ORPSET.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,7 +14,7 @@
 #include "Realizer.h"
 
 void run_server();
-void connect_handler(HashTable *ht,int clientfd);
+void connect_handler(HashTable **ht,int clientfd);
 
 int main() {
     run_server();
@@ -78,21 +79,21 @@ void run_server() {
             continue;
         }
         printf("Client connected\n");
-        connect_handler(ht,clientfd);
+        connect_handler(&ht,clientfd);
     }
 }
 
-void connect_handler(HashTable *ht,int clientfd) {
+void connect_handler(HashTable **ht,int clientfd) {
     while (1)
     {
         // autocommit
         int autoCommitSwitch = 0;
-        const char *autocommit = hashGet(ht,ODB_SETTING_AUTOCOMMIT);
+        const char *autocommit = hashGet(*ht,ODB_SETTING_AUTOCOMMIT);
         if (autocommit == NULL)
         {
             perror("hashGet autocommit setting fail!\n");
         }
-        else if(strncmp(autocommit,"true",strlen("ture")) == 0)
+        else if(strncmp(autocommit,"true",strlen("true")) == 0)
         {
             printf("Autocommit enabled\n");
             autoCommitSwitch = 1;
@@ -106,7 +107,7 @@ void connect_handler(HashTable *ht,int clientfd) {
         {
             perror("Autocommit setting wrong!\n");
             printf("autocommit setting now set to 'false'\n");
-            hashSet(ht,ODB_SETTING_AUTOCOMMIT,"false");
+            hashSet(*ht,ODB_SETTING_AUTOCOMMIT,"false");
         }
 
         SDS affair[MAX_AFFAIR_SIZE]={0,NULL};
@@ -127,7 +128,13 @@ void connect_handler(HashTable *ht,int clientfd) {
             affair[i] = sds_new(request[i]);
         }
         // 事务处理
-        affair_handler(&ht,clientfd,affair,autoCommitSwitch);
+        affair_handler(ht,clientfd,affair,autoCommitSwitch);
+
+        // autoSaver reopen
+        autoSaverSwitch = 0;
+        usleep(2000);
+        autoSaverSwitch = 1;
+        odbautosave(*ht,ODB_FILE_DIR,odbget(*ht,sds_new(ODB_SETTING_AUTOSAVE_TIME)),odbget(*ht,sds_new(ODB_SETTING_AUTOSAVE_CHANGENUM)));
     }
 }
 

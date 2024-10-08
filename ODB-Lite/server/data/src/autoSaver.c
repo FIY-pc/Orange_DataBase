@@ -8,9 +8,11 @@
 // 定义全局变量
 int change_count = 0;
 int autoSaverSwitch = 0;
+double saveTime = 0;
 
 pthread_mutex_t change_count_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t autoSaverSwitch_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t saveTimeMutex = PTHREAD_MUTEX_INITIALIZER;
 
 void increment_change_count() {
     pthread_mutex_lock(&change_count_mutex);
@@ -25,11 +27,30 @@ void reset_change_count() {
 }
 
 int get_change_count() {
-    int count;
     pthread_mutex_lock(&change_count_mutex);
-    count = change_count;
+    int count = change_count;
     pthread_mutex_unlock(&change_count_mutex);
     return count;
+}
+
+void increment_Time()
+{
+    pthread_mutex_lock(&saveTimeMutex);
+    saveTime += 0.005;
+    pthread_mutex_unlock(&saveTimeMutex);
+}
+void reset_Time()
+{
+    pthread_mutex_lock(&saveTimeMutex);
+    saveTime = 0;
+    pthread_mutex_unlock(&saveTimeMutex);
+}
+double get_Time()
+{
+    pthread_mutex_lock(&saveTimeMutex);
+    double time = saveTime;
+    pthread_mutex_unlock(&saveTimeMutex);
+    return time;
 }
 
 void open_autoSaver() {
@@ -58,11 +79,13 @@ void *autoSaver(void *arg) {
         }
         pthread_mutex_unlock(&autoSaverSwitch_mutex);
 
-        if (get_change_count() >= changeNum) {
+        if (get_change_count() >= changeNum && get_Time() >= time) {
             odbsave(args->ht, args->fileName);
             reset_change_count();
+            reset_Time();
         }
-        sleep(time);
+        usleep(5000);
+        increment_Time();
     }
 
     // 清理动态分配的内存，如果SDS类型需要手动释放
@@ -74,6 +97,10 @@ void *autoSaver(void *arg) {
 }
 
 SDS autoSaver_create(HashTable *ht, const char *filename, SDS time, SDS changeNum) {
+    if(ht == NULL || filename == NULL)
+    {
+        return sds_new("autoSaver: ht/filename error");
+    }
     if (isValidNaturalInteger(time.data) == 0 || isValidNaturalInteger(changeNum.data) == 0) {
         printf("autoSaver create failed due to illegal param\n");
         return sds_new("autoSaver create failed due to illegal param");

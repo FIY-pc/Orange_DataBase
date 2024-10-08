@@ -44,13 +44,12 @@ void affair_handler(HashTable **ht,int clientfd,SDS *affair,int isautocommit)
 
     // 执行命令
     int successCount = commands_handler(snapshot,clientfd,current+1);
-    if(successCount != totalCount)
+    if(successCount != totalCount-1)
     {
         freeHashTable(snapshot);
-        printf("affair_handler 3\n");
         return;
     }
     // 用修改后的快照覆盖原哈希表
-    *ht = copyHashTable(snapshot);
-    freeHashTable(snapshot);
+    replaceHashTable(ht,snapshot);
+    snapshot = NULL;
 }

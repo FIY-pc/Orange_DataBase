@@ -11,10 +11,16 @@
 extern int change_count;
 // 用外部变量控制线程关闭
 extern int autoSaverSwitch;
+extern double saveTime;
 // 操作变化数的函数
 void increment_change_count();
 void reset_change_count();
 int get_change_count();
+
+// 操作计时的函数
+void increment_Time();
+void reset_Time();
+double get_Time();
 
 // 操作变化监视器线程开关的函数
 void open_autoSaver();
