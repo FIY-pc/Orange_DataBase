@@ -10,7 +10,7 @@ typedef struct Entry {
     char key[MAX_KEY_LEN];
     char value[MAX_VALUE_LEN];
     struct Entry *next;
-    int is_modified;
+    int is_modified;   //用于标记条目是否改变
     int is_loaded;  // 用于标记条目是否从文件中加载
     int is_in_hash_table; // 用于标记条目是否在哈希表中
 } Entry;

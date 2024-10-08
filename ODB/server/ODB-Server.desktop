@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Name=ODB-Server
+Comment=Run My Program in Terminal
+Icon=terminal
+Exec=gnome-terminal -- bash -c "./build/ODB-Server; exec bash"
+Terminal=false
+Categories=Application;
