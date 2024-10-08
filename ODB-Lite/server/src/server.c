@@ -99,7 +99,6 @@ void run_server() {
             free(args); // 创建线程失败，释放args
             perror("connection_thread create fail!\n");
         }
-        free(args);
         pthread_detach(connection_thread);
     }
 }
@@ -115,7 +114,7 @@ void *connect_handler(void *args) {
         // autocommit
         int autoCommitSwitch = 0;
         pthread_mutex_lock(&ht_mutex);        // 为ht加锁
-        const char *autocommit = hashGet(*ht,ODB_SETTING_AUTOCOMMIT);
+        const char *autocommit = hashGet(*ht,ODB_SETTING_AUTOCOMMIT); // 段错误
         if (autocommit == NULL)
         {
             perror("hashGet autocommit setting fail!\n");
